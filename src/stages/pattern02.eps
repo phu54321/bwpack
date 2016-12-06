@@ -1,0 +1,25 @@
+// 입문용 스테이지
+
+import stages.py_timeline as tL;
+import bulletTools as bTool;
+
+function stagestart() {
+    // Stage starter
+    for(var y = 1 ; y <= 9 ; y++) {
+        for(var x = 1 ; x <= 9 ; x++) {
+            bTool.place($P7, $U('Missile'), x, y);
+        }
+    }
+}
+
+function stageproc() {
+    // Stagle processor
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+const funcs = [
+    DBString("Basic"),
+    EUDFuncPtr(0, 0)(f_stagestart),
+    EUDFuncPtr(0, 0)(f_stageproc)
+];

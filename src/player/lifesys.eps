@@ -2,7 +2,6 @@ import location as loc;
 import main;
 
 function createPlayer(player) {
-    SetResources(player, Subtract, 1, Ore);
     const regenX, regenY = loc.playerRegen(player);
     loc.moveLocationPx($L("pRegen"), regenX, regenY);
     CreateUnit(1, "Avoider", "pRegen", player);    

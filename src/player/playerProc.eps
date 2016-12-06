@@ -25,6 +25,7 @@ function processPlayerCUnit(player, unitptr, unitepd) {
         GiveUnits(All, 'HitEffect', P7, 'Anywhere', P9);
         KillUnit('HitEffect', P9);
         KillUnit('Avoider', player);
+        SetResources(player, Subtract, 1, Ore);
         return;
     }
 }

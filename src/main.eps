@@ -23,7 +23,6 @@ function onPluginStart() {
 
     // 라이프 시스템 초기화
     lSys.addLife($Force1, 10);
-    lSys.createPlayers();
 
     LeaderBoardResources(Ore, "\x04Remaining life");
     LeaderBoardComputerPlayers(Disable);
@@ -40,11 +39,13 @@ function issueGameComplete() {
 function afterTriggerExec() {
     if(gameEnded) return;
 
-    lSys.lifeProc();
-    uLoop.mainUnitLoop();
     sSys.runStageProc();
+    uLoop.mainUnitLoop();
+    lSys.lifeProc();
 
     SetCurrentPlayer(getuserplayerid());
     MinimapPing('minimapPing');
+    SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
+    ModifyUnitHitPoints(All, '(any unit)', AllPlayers, 'Anywhere', 100);
     SetMemory(0x6D5E1C, SetTo, 1);
 }

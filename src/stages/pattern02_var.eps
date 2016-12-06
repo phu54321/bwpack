@@ -1,0 +1,35 @@
+// 입문용 스테이지
+
+import stages.py_timeline as tL;
+import bulletTools as bTool;
+
+function placeAll(player) {
+    for(var y = 1 ; y <= 9 ; y++) {
+        for(var x = 1 ; x <= 9 ; x++) {
+            bTool.place(player, $U('Missile'), x, y);
+        }
+    }
+}
+
+function stagestart() {
+    // Stage starter
+    placeAll($P7);
+}
+
+function stageproc() {
+    // Stagle processor
+    foreach(v: tL.Timeline(96)) {
+        /**/ if(v == 0 ) placeAll($P7);
+        else if(v == 36) KillUnit('Missile', P7);
+        else if(v == 48) placeAll($P8);
+        else if(v == 84) KillUnit('Missile', P8);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+const funcs = [
+    DBString("Basic 2"),
+    EUDFuncPtr(0, 0)(f_stagestart),
+    EUDFuncPtr(0, 0)(f_stageproc)
+];

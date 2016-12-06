@@ -1,21 +1,36 @@
 import bulletBase as bBase;
 
+function shoot(player, unitType, speed, tx0, ty0, tx1, ty1) {
+    const x0 = 768 + 64 * (tx0 - 1);
+    const y0 = 768 + 64 * (ty0 - 1);
+    const x1 = 768 + 64 * (tx1 - 1);
+    const y1 = 768 + 64 * (ty1 - 1);
+    bBase.shoot(player, unitType, speed, x0, y0, x1, y1);
+}
+
 function shootL(player, unitType, speed, row) {
-    const x0, x1, y = 512, 2048 - 512, 768 + 64 * (row - 1);
-    bBase.shoot(player, unitType, speed, x0, y, x1, y);
+    shoot(player, unitType, speed, -3, row, 13, row);
 }
 
 function shootR(player, unitType, speed, row) {
-    const x1, x0, y = 512, 2048 - 512, 768 + 64 * (row - 1);
-    bBase.shoot(player, unitType, speed, x0, y, x1, y);
+    shoot(player, unitType, speed, 13, row, -3, row);
 }
 
-function shootU(player, unitType, speed, row) {
-    const y0, y1, x = 512, 2048 - 512, 768 + 64 * (row - 1);
-    bBase.shoot(player, unitType, speed, x, y0, x, y1);
+function shootU(player, unitType, speed, col) {
+    shoot(player, unitType, speed, col, -3, col, 13);
 }
 
-function shootD(player, unitType, speed, row) {
-    const y1, y0, x = 512, 2048 - 512, 768 + 64 * (row - 1);
-    bBase.shoot(player, unitType, speed, x, y0, x, y1);
+function shootD(player, unitType, speed, col) {
+    shoot(player, unitType, speed, col, 13, col, -3);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+function place(player, unitType, tx, ty) {
+    const x = 768 + 64 * (tx - 1);
+    const y = 768 + 64 * (ty - 1);
+    const epd = bBase.createBullet(unitType, player, 1, x, y)[[1]];
+    // Hold unit
+    SetMemoryEPD(epd + (0x4C / 4), SetTo, player + 0x00006B00);
+
 }

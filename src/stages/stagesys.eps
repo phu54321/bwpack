@@ -1,9 +1,15 @@
 import stages.py_timeline;
 
 import stages.pattern01;
+import stages.pattern02;
+import stages.pattern02_var;
+
+import player.lifesys as lSys;
 
 const stagesFuncs = [
-    pattern01.funcs,
+    pattern02.funcs,  // Basic tutorial
+    pattern02_var.funcs,  // Basic tutorial 2
+    pattern01.funcs,  // Thing
     0
 ];
 
@@ -22,7 +28,9 @@ function nextStage() {
         return;
     }
 
-    KillUnitAt(All, "(any unit)", "stageMain", Force2);
+    KillUnit('(any unit)', Force2);
+    RemoveUnit('Avoider', Force1);
+    lSys.createPlayers();
 
     const stageFunc2 = EUDArray(stageFuncs);
     const stageName, stageStarter, stageProc =
@@ -31,7 +39,11 @@ function nextStage() {
         EUDFuncPtr(0, 0)(stageFunc2[2]);
 
     SetCurrentPlayer(getuserplayerid());
-    DoActions(stageName.GetDisplayAction());
+
+    const buffer = DBString(50);
+    const k1 = dbstr_print(buffer, "\x0F#", currentStage, ". \x04");
+    dbstr_addstr(k1, stageName.GetStringMemoryAddr());
+    DoActions(buffer.GetDisplayAction());
     EUDFuncPtr(0, 0)(stageStarter)();
     currentStageProc.setFunc(stageProc);
 }
