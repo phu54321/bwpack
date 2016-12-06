@@ -14,7 +14,6 @@ function makeUnitStackable(epd) {
 }
 
 
-
 function createBullet(unitType, player, speed, x, y) {
     speed = speed * 320;    // Tile speed -> real speed
     loc.moveLocationPx($L('mSource'), x, y);
@@ -32,6 +31,7 @@ function createBullet(unitType, player, speed, x, y) {
     }
     return ptr, epd;
 }
+
 
 function shoot(player, unitType, speed, sx, sy, dx, dy) {
     const ptr, epd = createBullet(unitType, player, speed, sx, sy);

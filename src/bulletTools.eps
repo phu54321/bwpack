@@ -34,3 +34,53 @@ function place(player, unitType, tx, ty) {
     SetMemoryEPD(epd + (0x4C / 4), SetTo, player + 0x00006B00);
 
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+function getMissileDest(x, y, dx, dy) {
+    const mapSize = 32 * 64;
+
+    // Get time to arrive at the vertical edge of the map
+    var timeX, timeY;
+    if(dx >= 0x80000000) timeX = 2048 * x / -dx;
+    else timeX = 2048 * (mapSize - x) / dx;
+    if(dy >= 0x80000000) timeY = 2048 * y / -dy;
+    else timeY = 2048 * (mapSize - y) / dy;
+
+    // Get time for the missile to get to the edge
+    var time;  // min(timeX, timeY)
+    if(dx == 0) time = timeY;
+    else if(dy == 0) time = timeX;
+    else if(timeX <= timeY) time = timeX;
+    else time = timeY;
+
+    // Calculate final position
+    var dstx, dsty;
+    if(dx >= 0x80000000) dstx = x - (-dx * time / 2048);
+    else dstx = x + (dx * time / 2048);
+    if(dy >= 0x80000000) dsty = y - (-dy * time / 2048);
+    else dsty = y + (dy * time / 2048);
+    return dstx, dsty;
+}
+
+function shootAngle(player, unitType, speed, tx, ty, angle) {
+    const dx, dy = lengthdir(512, angle);
+    const srcx = 768 + 64 * (tx - 1);
+    const srcy = 768 + 64 * (ty - 1);
+    const dstx, dsty = getMissileDest(srcx, srcy, dx, dy);
+    bBase.shoot(player, unitType, speed, srcx, srcy, dstx, dsty);
+}
+
+function shootCircular(player, unitType, speed, tx, ty, startAngle, n) {
+    const q, r = div(360, n);
+    var angle, rangle = startAngle, 0;
+    for(var i = 1 ; i <= n ; i++) {
+        shootAngle(player, unitType, speed, tx, ty, angle);
+        angle += q;
+        rangle += r;
+        if(rangle > n) {
+            rangle -= n;
+            angle++;
+        }
+    }
+}

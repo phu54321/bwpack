@@ -7,6 +7,8 @@ import bulletTools as bTool;
 import unitloop as uLoop;
 import stages.stagesys as sSys;
 
+import bgmplayer;
+
 
 function setBulletFlingy(flingyID) {
     dwwrite(0x6C9930 + 4 * flingyID, 1);
@@ -37,6 +39,8 @@ function issueGameComplete() {
 }
 
 function afterTriggerExec() {
+    bgmplayer.bgmloop();
+
     if(gameEnded) return;
 
     sSys.runStageProc();

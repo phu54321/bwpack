@@ -14,6 +14,12 @@ function mainUnitLoop() {
             continue;
         }
 
+        // Kill clipped bullets
+        KillUnitAt(All, '(any unit)', 'uclip', Force2);
+        KillUnitAt(All, '(any unit)', 'lclip', Force2);
+        KillUnitAt(All, '(any unit)', 'dclip', Force2);
+        KillUnitAt(All, '(any unit)', 'rclip', Force2);
+
         // Kill halted bullets
         const w1, b0, b1 = dwbreak(dwread_epd(epd + (0x4C / 4)))[[1, 2, 3]];
         const player, orderID = b0, b1;
