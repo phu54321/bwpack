@@ -1,3 +1,5 @@
+// 사방에서 계단
+
 import stages.py_timeline as tL;
 import bulletTools as bTool;
 
@@ -20,4 +22,10 @@ function stageproc() {
     }
 }
 
-const funcs = [EUDFuncPtr(0, 0)(f_stagestart), EUDFuncPtr(0, 0)(f_stageproc)];
+///////////////////////////////////////////////////////////////////////////////
+
+const funcs = [
+    DBString("\x0F#1. \x04Basics."),
+    EUDFuncPtr(0, 0)(f_stagestart),
+    EUDFuncPtr(0, 0)(f_stageproc)
+];

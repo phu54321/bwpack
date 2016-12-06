@@ -1,5 +1,5 @@
 import player.playerProc as pProc;
-import player.lifesys;
+import player.lifesys as lSys;
 
 import bulletBase as bBase;
 import bulletTools as bTool;
@@ -7,13 +7,12 @@ import bulletTools as bTool;
 import unitloop as uLoop;
 import stages.stagesys as sSys;
 
+
 function setBulletFlingy(flingyID) {
     dwwrite(0x6C9930 + 4 * flingyID, 1);
 }
 
 function onPluginStart() {
-    lifesys.addLife($Force1, 10);
-
     // 마린 외형/버튼셋
     SetMemory(0x6644F8, SetTo, 0x4B584A0F);  // 마린 그래픽을 0F(저글링)으로
     SetMemory(0x51783C, SetTo, 0x00E90009);  // 버튼셋 그래픽 변경
@@ -21,18 +20,31 @@ function onPluginStart() {
     SetMemory(0x6636B8, Add, 130);  // 마린의 공중무기 삭제
 
     setBulletFlingy(43);  // 스카웃 속도 조절
+
+    // 라이프 시스템 초기화
+    lSys.addLife($Force1, 10);
+    lSys.createPlayers();
+
+    LeaderBoardResources(Ore, "\x04Remaining life");
+    LeaderBoardComputerPlayers(Disable);
 }
 
 var x = 0;
 var timer = 0;
+var gameEnded = 0;
+
+function issueGameComplete() {
+    gameEnded = 1;
+}
 
 function afterTriggerExec() {
-    pProc.regeneratePlayers();
+    if(gameEnded) return;
+
+    lSys.lifeProc();
     uLoop.mainUnitLoop();
     sSys.runStageProc();
 
     SetCurrentPlayer(getuserplayerid());
     MinimapPing('minimapPing');
-
     SetMemory(0x6D5E1C, SetTo, 1);
 }

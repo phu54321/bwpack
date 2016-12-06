@@ -25,10 +25,13 @@ function nextStage() {
     KillUnitAt(All, "(any unit)", "stageMain", Force2);
 
     const stageFunc2 = EUDArray(stageFuncs);
-    const stageStarter, stageProc =
-        EUDFuncPtr(0, 0)(stageFunc2[0]),
-        EUDFuncPtr(0, 0)(stageFunc2[1]);
+    const stageName, stageStarter, stageProc =
+        DBString(stageFunc2[0]),
+        EUDFuncPtr(0, 0)(stageFunc2[1]),
+        EUDFuncPtr(0, 0)(stageFunc2[2]);
 
+    SetCurrentPlayer(getuserplayerid());
+    DoActions(stageName.GetDisplayAction());
     EUDFuncPtr(0, 0)(stageStarter)();
     currentStageProc.setFunc(stageProc);
 }

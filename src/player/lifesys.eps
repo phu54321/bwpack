@@ -1,4 +1,20 @@
 import location as loc;
+import main;
+
+function createPlayer(player) {
+    SetResources(player, Subtract, 1, Ore);
+    const regenX, regenY = loc.playerRegen(player);
+    loc.moveLocationPx($L("pRegen"), regenX, regenY);
+    CreateUnit(1, "Avoider", "pRegen", player);    
+}
+
+function createPlayers() {
+    for(var player = $P1 ; player <= $P6; player++) {
+        if(playerexist(player)) {
+            createPlayer(player);
+        }
+    }
+}
 
 /**
  * Regenerate player, if player has sufficient life
@@ -7,10 +23,9 @@ function regeneratePlayer(player) {
     // Regenerate player
     if(!Command(player, AtLeast, 1, "Avoider")) {
         if(Accumulate(player, AtLeast, 1, Ore)) {
-            SetResources(player, Subtract, 1, Ore);
-            const regenX, regenY = loc.playerRegen(player);
-            loc.moveLocationPx($L("pRegen"), regenX, regenY);
-            CreateUnit(1, "Avoider", "pRegen", player);
+            createPlayer(player);
+            SetCurrentPlayer(player);
+            DisplayText("\x05  Retry...");
         }
     }
 }
@@ -23,4 +38,26 @@ function isPlayerAlive(player) {
 
 function addLife(player, life) {
     SetResources(player, Add, life, Ore);
+}
+
+
+function lifeProc() {
+    // 플레이어 부활
+    for(var player = $P1 ; player <= $P6; player++) {
+        if(playerexist(player)) {
+            regeneratePlayer(player);
+        }
+    }
+
+    // 패배 조건
+    if(
+        Bring(Force1, Exactly, 0, 'Avoider', 'Anywhere') &&
+        Accumulate(Force1, Exactly, 0, Ore)
+    ) {
+        DisplayText(SCMD2Text("\
+<04>Game over\
+<05>  - Defeat();"));
+        Defeat();
+        main.issueGameComplete();
+    }
 }

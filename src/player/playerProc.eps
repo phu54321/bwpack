@@ -30,18 +30,6 @@ function processPlayerCUnit(player, unitptr, unitepd) {
 }
 
 
-/**
- * Apply processPlayer for all human players.
- */
-function regeneratePlayers() {
-    for(var player = $P1 ; player <= $P6; player++) {
-        if(playerexist(player)) {
-            lifesys.regeneratePlayer(player);
-        }
-    }
-}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 

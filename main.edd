@@ -4,4 +4,4 @@ output: Missile pack [BW] v0.scx
 
 [noAirCollision]
 [eudTurbo]
-[src/main.py]
+[src/entry.py]
