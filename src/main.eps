@@ -25,9 +25,12 @@ function onPluginStart() {
 
     // 라이프 시스템 초기화
     lSys.addLife($Force1, 10);
-
     LeaderBoardResources(Ore, "\x04Remaining life");
     LeaderBoardComputerPlayers(Disable);
+
+    // 스테이지 관련
+    SetCurrentPlayer(getuserplayerid());
+    DisplayText("\x1F♬\x04 cycerin - Spacefighter\n\n");
 }
 
 var x = 0;

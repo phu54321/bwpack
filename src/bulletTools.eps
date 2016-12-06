@@ -64,7 +64,7 @@ function getMissileDest(x, y, dx, dy) {
 }
 
 function shootAngle(player, unitType, speed, tx, ty, angle) {
-    const dx, dy = lengthdir(512, angle);
+    const dx, dy = lengthdir(1024, angle);
     const srcx = 768 + 64 * (tx - 1);
     const srcy = 768 + 64 * (ty - 1);
     const dstx, dsty = getMissileDest(srcx, srcy, dx, dy);

@@ -1,14 +1,15 @@
 function time() {
-    return 0xFFFFFFFF - dwread_epd(0x51CE8C);
+    return -dwread_epd(EPD(0x51CE8C));
 }
 
-var dsttimer = 0xFFFFFFFF;
+var dsttimer;
+
 function startTimer(duration) {
     dsttimer = time() + duration - 42;
 }
 
 function isTimerHit() {
-    if(dsttimer >= time()) return 1;
+    if(dsttimer <= time()) return 1;
     else return 0;
 }
 
@@ -16,6 +17,7 @@ const bgmContent = py_open('src/bgm.wav', 'rb').read();
 
 function bgmloop() {
     MPQAddWave('staredit\\wav\\bgmmain.wav', bgmContent);
+
     if(isTimerHit()) {
         startTimer(54857);
         SetCurrentPlayer(getuserplayerid());
