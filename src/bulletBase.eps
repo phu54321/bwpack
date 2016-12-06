@@ -1,0 +1,45 @@
+import location as loc;
+
+
+function getNextGeneratedUnit() {
+    return dwepdread_epd(EPD(0x628438));
+}
+
+
+function makeUnitStackable(epd) {
+    dwwrite_epd(
+        epd + (0xDC / 4),
+        dwread_epd(epd + (0xDC / 4)) | 0x200000
+        );
+}
+
+
+
+function createBullet(unitType, player, speed, x, y) {
+    loc.moveLocationPx($L('mSource'), x, y);
+    const ptr, epd = getNextGeneratedUnit();
+    if(ptr != 0) {
+        CreateUnit(1, unitType, 'mSource', player);
+        makeUnitStackable(epd);
+        // SetMemoryEPD(epd + (0x34 / 4), SetTo, speed);
+    }
+    return ptr, epd;
+}
+
+
+
+function shoot(player, unitType, speed, sx, sy, dx, dy) {
+    const ptr, epd = createBullet(unitType, player, speed, sx, sy);
+    if(ptr != 0) {
+        // /*0x04D*/ u8            orderID;
+        // /*0x04E*/ u8            orderState;
+        SetMemoryEPD(epd + (0x4C / 4), SetTo, player + 0x00000600);
+
+        // /*0x050*/ u16           orderUnitType;
+        SetMemoryEPD(epd + (0x50 / 4), SetTo, 228);
+
+        // /*0x058*/ Target    orderTarget;
+        SetMemoryEPD(epd + (0x58 / 4), SetTo, dy * 0x10000 + dx);
+        SetMemoryEPD(epd + (0x5C / 4), SetTo, 0);
+    }
+}

@@ -1,0 +1,2565 @@
+epScript v0.2 - eudplib script compiler
+Parsing string [[[
+import location as loc;
+import playerType as pType;
+import lifesys;
+
+function getPlayerCUnit(player);
+function collisionCheck(player, epd);
+
+/**
+ * Process various things for player.
+ */
+function processPlayer(player) {
+    lifesys.regeneratePlayer(player);
+    if(!Command(player, AtLeast, 1, "Avoider")) return;
+
+    const unitptr, unitepd = getPlayerCUnit(player);
+    MoveLocation('pTrace', 'Avoider', player, 'Anywhere');
+
+    // Color related
+    pType.applyUnitTypeChange(player, unitepd);
+    pType.applyUnitTypeColor(player, unitepd);
+
+    dwwrite(unitptr + 0x34, 10240);
+    wwrite(unitptr + 0x48, 67);
+    bwrite(unitptr + 0x22, 40);
+
+    // Check for collision
+    if(collisionCheck(player, unitepd)) {
+        CreateUnit(1, 'HitEffect', 'pTrace', P7);
+        GiveUnits(All, 'HitEffect', P7, 'Anywhere', P9);
+        KillUnit('HitEffect', P9);
+        KillUnit('Avoider', player);
+        return;
+    }
+}
+
+
+/**
+ * Apply processPlayer for all human players.
+ */
+function processPlayers() {
+    for(var player = $P1 ; player <= $P6;) {
+        if(playerexist(player)) {
+            processPlayer(player);
+        }
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+/**
+ * Get player avoider's cunit address
+ * @return cunit ptr & epd
+ */
+function getPlayerCUnit(player) {
+    foreach (ptr, epd : EUDLoopUnit()) {
+        const unitType = dwread_epd(epd + (0x64 / 4));
+        if(unitType == $U("Avoider")) {
+            const playerID = dwbreak(dwread_epd(epd + (0x4C / 4)))[[2]];
+            if(playerID == player) {
+                return ptr, epd;
+            }
+        }
+    }
+    return -1, -1;
+}
+
+
+/**
+ * Check for collision with missiles.
+ */
+function collisionCheck(player, epd) {
+    const unitType = pType.getCurrentUnitType(epd);
+    if(unitType == 1 && Bring(P7, AtLeast, 1, '(men)', 'pTrace')) return 1;
+    else if(unitType == 2 && Bring(P8, AtLeast, 1, '(men)', 'pTrace')) return 1;
+    else return 0;
+}
+
+]]]
+# reading line import location as loc;
+--Input NAME
+--Shift 218
+--Stack: chunks IMPORT NAME
+--Input AS
+--Shift 217
+--Stack: chunks IMPORT NAME AS
+--Input NAME
+--Shift 316
+--Stack: chunks IMPORT NAME AS NAME
+--Input SEMICOLON
+--Reduce [import_chunk ::= IMPORT NAME AS NAME].
+--Shift 223
+--Stack: chunks import_chunk
+--Shift 323
+--Stack: chunks import_chunk SEMICOLON
+# reading line import playerType as pType;
+--Input IMPORT
+--Reduce [chunk ::= import_chunk SEMICOLON].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 219
+--Stack: chunks IMPORT
+--Input NAME
+--Shift 218
+--Stack: chunks IMPORT NAME
+--Input AS
+--Shift 217
+--Stack: chunks IMPORT NAME AS
+--Input NAME
+--Shift 316
+--Stack: chunks IMPORT NAME AS NAME
+--Input SEMICOLON
+--Reduce [import_chunk ::= IMPORT NAME AS NAME].
+--Shift 223
+--Stack: chunks import_chunk
+--Shift 323
+--Stack: chunks import_chunk SEMICOLON
+# reading line import lifesys;
+--Input IMPORT
+--Reduce [chunk ::= import_chunk SEMICOLON].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 219
+--Stack: chunks IMPORT
+--Input NAME
+--Shift 218
+--Stack: chunks IMPORT NAME
+--Input SEMICOLON
+--Reduce [import_chunk ::= IMPORT NAME].
+--Shift 223
+--Stack: chunks import_chunk
+--Shift 323
+--Stack: chunks import_chunk SEMICOLON
+# reading line function getPlayerCUnit(player);
+--Input FUNCTION
+--Reduce [chunk ::= import_chunk SEMICOLON].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 216
+--Stack: chunks FUNCTION
+--Input NAME
+--Shift 215
+--Stack: chunks FUNCTION NAME
+--Input LPAREN
+--Shift 77
+--Stack: chunks FUNCTION NAME LPAREN
+--Input NAME
+--Shift 314
+--Stack: chunks FUNCTION NAME LPAREN NAME
+--Input RPAREN
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 212
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty
+--Reduce [nameList ::= nameList_nonEmpty].
+--Shift 214
+--Stack: chunks FUNCTION NAME LPAREN nameList
+--Shift 213
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN
+--Input SEMICOLON
+--Shift 315
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN SEMICOLON
+# reading line function collisionCheck(player, epd);
+--Input FUNCTION
+--Reduce [fdecl_chunk ::= FUNCTION NAME LPAREN nameList RPAREN SEMICOLON].
+--Shift 321
+--Stack: chunks fdecl_chunk
+--Reduce [chunk ::= fdecl_chunk].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 216
+--Stack: chunks FUNCTION
+--Input NAME
+--Shift 215
+--Stack: chunks FUNCTION NAME
+--Input LPAREN
+--Shift 77
+--Stack: chunks FUNCTION NAME LPAREN
+--Input NAME
+--Shift 314
+--Stack: chunks FUNCTION NAME LPAREN NAME
+--Input COMMA
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 212
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty
+--Shift 211
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty COMMA
+--Input NAME
+--Shift 313
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [nameList_nonEmpty ::= nameList_nonEmpty COMMA NAME].
+--Shift 212
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty
+--Reduce [nameList ::= nameList_nonEmpty].
+--Shift 214
+--Stack: chunks FUNCTION NAME LPAREN nameList
+--Shift 213
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN
+--Input SEMICOLON
+--Shift 315
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN SEMICOLON
+# reading line function processPlayer(player) {
+--Input FUNCTION
+--Reduce [fdecl_chunk ::= FUNCTION NAME LPAREN nameList RPAREN SEMICOLON].
+--Shift 321
+--Stack: chunks fdecl_chunk
+--Reduce [chunk ::= fdecl_chunk].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 216
+--Stack: chunks FUNCTION
+--Input NAME
+--Shift 215
+--Stack: chunks FUNCTION NAME
+--Input LPAREN
+--Shift 77
+--Stack: chunks FUNCTION NAME LPAREN
+--Input NAME
+--Shift 314
+--Stack: chunks FUNCTION NAME LPAREN NAME
+--Input RPAREN
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 212
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty
+--Reduce [nameList ::= nameList_nonEmpty].
+--Shift 214
+--Stack: chunks FUNCTION NAME LPAREN nameList
+--Shift 213
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN
+--Input LBRACKET
+--Reduce [fdef_header ::= FUNCTION NAME LPAREN nameList RPAREN].
+--Shift 9
+--Stack: chunks fdef_header
+--Shift 308
+--Stack: chunks fdef_header LBRACKET
+# reading line     lifesys.regeneratePlayer(player);
+--Input NAME
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket
+--Shift 116
+--Stack: chunks fdef_header lbracket NAME
+--Input PERIOD
+--Reduce [expr ::= NAME].
+--Shift 89
+--Stack: chunks fdef_header lbracket expr
+--Shift 165
+--Stack: chunks fdef_header lbracket expr PERIOD
+--Input NAME
+--Shift 118
+--Stack: chunks fdef_header lbracket expr PERIOD NAME
+--Input LPAREN
+--Reduce [expr ::= expr PERIOD NAME].
+--Shift 89
+--Stack: chunks fdef_header lbracket expr
+--Shift 18
+--Stack: chunks fdef_header lbracket expr LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket expr LPAREN NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket expr LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket expr LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 167
+--Stack: chunks fdef_header lbracket expr LPAREN fArgs
+--Shift 262
+--Stack: chunks fdef_header lbracket expr LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= expr LPAREN fArgs RPAREN].
+--Shift 148
+--Stack: chunks fdef_header lbracket funcexpr
+--Shift 296
+--Stack: chunks fdef_header lbracket funcexpr SEMICOLON
+# reading line     if(!Command(player, AtLeast, 1, "Avoider")) return;
+--Input IF
+--Reduce [bodyStmt ::= funcexpr SEMICOLON].
+--Shift 224
+--Stack: chunks fdef_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 257
+--Stack: chunks fdef_header lbracket bodyStmtList IF
+--Input LPAREN
+--Reduce [if_start ::= IF].
+--Shift 161
+--Stack: chunks fdef_header lbracket bodyStmtList if_start
+--Shift 25
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN
+--Input LNOT
+--Shift 27
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT
+--Input CONDITIONNAME
+--Shift 170
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME
+--Input LPAREN
+--Shift 15
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input RPAREN
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 169
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs
+--Shift 266
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT CONDITIONNAME LPAREN fArgs RPAREN
+--Input RPAREN
+--Reduce [lexpr ::= CONDITIONNAME LPAREN fArgs RPAREN].
+--Shift 268
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN LNOT lexpr
+--Reduce [lexpr ::= LNOT lexpr].
+--Shift 130
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr
+--Shift 256
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr RPAREN
+--Input RETURN
+--Reduce [if_header ::= if_start LPAREN lexpr RPAREN].
+--Shift 8
+--Stack: chunks fdef_header lbracket bodyStmtList if_header
+--Shift 20
+--Stack: chunks fdef_header lbracket bodyStmtList if_header RETURN
+--Input SEMICOLON
+--Reduce [exprList ::=].
+--Shift 230
+--Stack: chunks fdef_header lbracket bodyStmtList if_header RETURN exprList
+--Reduce [return_stmt ::= RETURN exprList].
+--Shift 209
+--Stack: chunks fdef_header lbracket bodyStmtList if_header return_stmt
+--Shift 309
+--Stack: chunks fdef_header lbracket bodyStmtList if_header return_stmt SEMICOLON
+# reading line     const unitptr, unitepd = getPlayerCUnit(player);
+--Input CONST
+--Reduce [stmt ::= return_stmt SEMICOLON].
+--Shift 255
+--Stack: chunks fdef_header lbracket bodyStmtList if_header stmt
+--Reduce [if_block ::= if_header stmt].
+--Shift 40
+--Stack: chunks fdef_header lbracket bodyStmtList if_block
+--Reduce [if_stmt ::= if_block].
+--Shift 293
+--Stack: chunks fdef_header lbracket bodyStmtList if_stmt
+--Reduce [bodyStmt ::= if_stmt].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 82
+--Stack: chunks fdef_header lbracket bodyStmtList CONST
+--Input NAME
+--Shift 314
+--Stack: chunks fdef_header lbracket bodyStmtList CONST NAME
+--Input COMMA
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 144
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty
+--Shift 211
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty COMMA
+--Input NAME
+--Shift 313
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty COMMA NAME
+--Input ASSIGN
+--Reduce [nameList_nonEmpty ::= nameList_nonEmpty COMMA NAME].
+--Shift 144
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty
+--Shift 37
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 193
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN funcexpr
+--Reduce [expr ::= funcexpr].
+--Shift 113
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 163
+--Stack: chunks fdef_header lbracket bodyStmtList CONST nameList_nonEmpty ASSIGN exprList_nonEmpty
+--Reduce [cdef_stmt ::= CONST nameList_nonEmpty ASSIGN exprList_nonEmpty].
+--Shift 204
+--Stack: chunks fdef_header lbracket bodyStmtList cdef_stmt
+--Shift 298
+--Stack: chunks fdef_header lbracket bodyStmtList cdef_stmt SEMICOLON
+# reading line     MoveLocation('pTrace', 'Avoider', player, 'Anywhere');
+--Input ACTIONNAME
+--Reduce [bodyStmt ::= cdef_stmt SEMICOLON].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 153
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME
+--Input LPAREN
+--Shift 16
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input RPAREN
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 152
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs
+--Shift 151
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Shift 229
+--Stack: chunks fdef_header lbracket bodyStmtList ACTIONNAME LPAREN fArgs RPAREN SEMICOLON
+# reading line     pType.applyUnitTypeChange(player, unitepd);
+--Input NAME
+--Reduce [action ::= ACTIONNAME LPAREN fArgs RPAREN SEMICOLON].
+--Shift 80
+--Stack: chunks fdef_header lbracket bodyStmtList action
+--Reduce [actionStmt ::= action].
+--Shift 294
+--Stack: chunks fdef_header lbracket bodyStmtList actionStmt
+--Reduce [bodyStmt ::= actionStmt].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 116
+--Stack: chunks fdef_header lbracket bodyStmtList NAME
+--Input PERIOD
+--Reduce [expr ::= NAME].
+--Shift 89
+--Stack: chunks fdef_header lbracket bodyStmtList expr
+--Shift 165
+--Stack: chunks fdef_header lbracket bodyStmtList expr PERIOD
+--Input NAME
+--Shift 118
+--Stack: chunks fdef_header lbracket bodyStmtList expr PERIOD NAME
+--Input LPAREN
+--Reduce [expr ::= expr PERIOD NAME].
+--Shift 89
+--Stack: chunks fdef_header lbracket bodyStmtList expr
+--Shift 18
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 167
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs
+--Shift 262
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= expr LPAREN fArgs RPAREN].
+--Shift 148
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr
+--Shift 296
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr SEMICOLON
+# reading line     pType.applyUnitTypeColor(player, unitepd);
+--Input NAME
+--Reduce [bodyStmt ::= funcexpr SEMICOLON].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 116
+--Stack: chunks fdef_header lbracket bodyStmtList NAME
+--Input PERIOD
+--Reduce [expr ::= NAME].
+--Shift 89
+--Stack: chunks fdef_header lbracket bodyStmtList expr
+--Shift 165
+--Stack: chunks fdef_header lbracket bodyStmtList expr PERIOD
+--Input NAME
+--Shift 118
+--Stack: chunks fdef_header lbracket bodyStmtList expr PERIOD NAME
+--Input LPAREN
+--Reduce [expr ::= expr PERIOD NAME].
+--Shift 89
+--Stack: chunks fdef_header lbracket bodyStmtList expr
+--Shift 18
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 167
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs
+--Shift 262
+--Stack: chunks fdef_header lbracket bodyStmtList expr LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= expr LPAREN fArgs RPAREN].
+--Shift 148
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr
+--Shift 296
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr SEMICOLON
+# reading line     dwwrite(unitptr + 0x34, 10240);
+--Input NAME
+--Reduce [bodyStmt ::= funcexpr SEMICOLON].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 116
+--Stack: chunks fdef_header lbracket bodyStmtList NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN NAME
+--Input PLUS
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr
+--Shift 74
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 126
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS expr
+--Reduce [expr ::= expr PLUS expr].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA NUMBER
+--Input RPAREN
+--Reduce [expr ::= NUMBER].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 148
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr
+--Shift 296
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr SEMICOLON
+# reading line     wwrite(unitptr + 0x48, 67);
+--Input NAME
+--Reduce [bodyStmt ::= funcexpr SEMICOLON].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 116
+--Stack: chunks fdef_header lbracket bodyStmtList NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN NAME
+--Input PLUS
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr
+--Shift 74
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 126
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS expr
+--Reduce [expr ::= expr PLUS expr].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA NUMBER
+--Input RPAREN
+--Reduce [expr ::= NUMBER].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 148
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr
+--Shift 296
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr SEMICOLON
+# reading line     bwrite(unitptr + 0x22, 40);
+--Input NAME
+--Reduce [bodyStmt ::= funcexpr SEMICOLON].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 116
+--Stack: chunks fdef_header lbracket bodyStmtList NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN NAME
+--Input PLUS
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr
+--Shift 74
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 126
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr PLUS expr
+--Reduce [expr ::= expr PLUS expr].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA NUMBER
+--Input RPAREN
+--Reduce [expr ::= NUMBER].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket bodyStmtList NAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 148
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr
+--Shift 296
+--Stack: chunks fdef_header lbracket bodyStmtList funcexpr SEMICOLON
+# reading line     if(collisionCheck(player, unitepd)) {
+--Input IF
+--Reduce [bodyStmt ::= funcexpr SEMICOLON].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 257
+--Stack: chunks fdef_header lbracket bodyStmtList IF
+--Input LPAREN
+--Reduce [if_start ::= IF].
+--Shift 161
+--Stack: chunks fdef_header lbracket bodyStmtList if_start
+--Shift 25
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME LPAREN fArgs RPAREN
+--Input RPAREN
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 196
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN funcexpr
+--Reduce [expr ::= funcexpr].
+--Shift 88
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN expr
+--Reduce [lexpr ::= expr].
+--Shift 130
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr
+--Shift 256
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr RPAREN
+--Input LBRACKET
+--Reduce [if_header ::= if_start LPAREN lexpr RPAREN].
+--Shift 8
+--Stack: chunks fdef_header lbracket bodyStmtList if_header
+--Shift 308
+--Stack: chunks fdef_header lbracket bodyStmtList if_header LBRACKET
+# reading line         CreateUnit(1, 'HitEffect', 'pTrace', P7);
+--Input ACTIONNAME
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket
+--Shift 153
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME
+--Input LPAREN
+--Shift 16
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 152
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs
+--Shift 151
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Shift 229
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket ACTIONNAME LPAREN fArgs RPAREN SEMICOLON
+# reading line         GiveUnits(All, 'HitEffect', P7, 'Anywhere', P9);
+--Input ACTIONNAME
+--Reduce [action ::= ACTIONNAME LPAREN fArgs RPAREN SEMICOLON].
+--Shift 80
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action
+--Shift 153
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME
+--Input LPAREN
+--Shift 16
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 152
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs
+--Shift 151
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Shift 229
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action ACTIONNAME LPAREN fArgs RPAREN SEMICOLON
+# reading line         KillUnit('HitEffect', P9);
+--Input ACTIONNAME
+--Reduce [action ::= ACTIONNAME LPAREN fArgs RPAREN SEMICOLON].
+--Shift 228
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket action action
+--Reduce [actions ::= action action].
+--Shift 79
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions
+--Shift 153
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME
+--Input LPAREN
+--Shift 16
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 152
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs
+--Shift 151
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Shift 229
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs RPAREN SEMICOLON
+# reading line         KillUnit('Avoider', player);
+--Input ACTIONNAME
+--Reduce [action ::= ACTIONNAME LPAREN fArgs RPAREN SEMICOLON].
+--Shift 227
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions action
+--Reduce [actions ::= actions action].
+--Shift 79
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions
+--Shift 153
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME
+--Input LPAREN
+--Shift 16
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 152
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs
+--Shift 151
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Shift 229
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions ACTIONNAME LPAREN fArgs RPAREN SEMICOLON
+# reading line         return;
+--Input RETURN
+--Reduce [action ::= ACTIONNAME LPAREN fArgs RPAREN SEMICOLON].
+--Shift 227
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions action
+--Reduce [actions ::= actions action].
+--Shift 79
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actions
+--Reduce [actionStmt ::= actions].
+--Shift 294
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket actionStmt
+--Reduce [bodyStmt ::= actionStmt].
+--Shift 224
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmtList
+--Shift 20
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmtList RETURN
+--Input SEMICOLON
+--Reduce [exprList ::=].
+--Shift 230
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmtList RETURN exprList
+--Reduce [return_stmt ::= RETURN exprList].
+--Shift 207
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmtList return_stmt
+--Shift 85
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmtList return_stmt SEMICOLON
+# reading line     }
+--Input RBRACKET
+--Shift 306
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmtList return_stmt SEMICOLON RBRACKET
+# reading line }
+--Input RBRACKET
+--Reduce [rbracket ::= RBRACKET].
+--Shift 303
+--Stack: chunks fdef_header lbracket bodyStmtList if_header lbracket bodyStmtList return_stmt SEMICOLON rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList return_stmt SEMICOLON rbracket].
+--Shift 302
+--Stack: chunks fdef_header lbracket bodyStmtList if_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header lbracket bodyStmtList if_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 255
+--Stack: chunks fdef_header lbracket bodyStmtList if_header stmt
+--Reduce [if_block ::= if_header stmt].
+--Shift 40
+--Stack: chunks fdef_header lbracket bodyStmtList if_block
+--Reduce [if_stmt ::= if_block].
+--Shift 293
+--Stack: chunks fdef_header lbracket bodyStmtList if_stmt
+--Reduce [bodyStmt ::= if_stmt].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 306
+--Stack: chunks fdef_header lbracket bodyStmtList RBRACKET
+# reading line function processPlayers() {
+--Input FUNCTION
+--Reduce [rbracket ::= RBRACKET].
+--Shift 304
+--Stack: chunks fdef_header lbracket bodyStmtList rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList rbracket].
+--Shift 302
+--Stack: chunks fdef_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 312
+--Stack: chunks fdef_header stmt
+--Reduce [fdef_chunk ::= fdef_header stmt].
+--Shift 322
+--Stack: chunks fdef_chunk
+--Reduce [chunk ::= fdef_chunk].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 216
+--Stack: chunks FUNCTION
+--Input NAME
+--Shift 215
+--Stack: chunks FUNCTION NAME
+--Input LPAREN
+--Shift 77
+--Stack: chunks FUNCTION NAME LPAREN
+--Input RPAREN
+--Reduce [nameList ::=].
+--Shift 214
+--Stack: chunks FUNCTION NAME LPAREN nameList
+--Shift 213
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN
+--Input LBRACKET
+--Reduce [fdef_header ::= FUNCTION NAME LPAREN nameList RPAREN].
+--Shift 9
+--Stack: chunks fdef_header
+--Shift 308
+--Stack: chunks fdef_header LBRACKET
+# reading line     for(var player = $P1 ; player <= $P6;) {
+--Input FOR
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket
+--Shift 157
+--Stack: chunks fdef_header lbracket FOR
+--Input LPAREN
+--Shift 248
+--Stack: chunks fdef_header lbracket FOR LPAREN
+--Input VAR
+--Reduce [for_opener ::= FOR LPAREN].
+--Shift 10
+--Stack: chunks fdef_header lbracket for_opener
+--Shift 83
+--Stack: chunks fdef_header lbracket for_opener VAR
+--Input NAME
+--Shift 314
+--Stack: chunks fdef_header lbracket for_opener VAR NAME
+--Input ASSIGN
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 145
+--Stack: chunks fdef_header lbracket for_opener VAR nameList_nonEmpty
+--Shift 38
+--Stack: chunks fdef_header lbracket for_opener VAR nameList_nonEmpty ASSIGN
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket for_opener VAR nameList_nonEmpty ASSIGN NUMBER
+--Input SEMICOLON
+--Reduce [expr ::= NUMBER].
+--Shift 113
+--Stack: chunks fdef_header lbracket for_opener VAR nameList_nonEmpty ASSIGN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 164
+--Stack: chunks fdef_header lbracket for_opener VAR nameList_nonEmpty ASSIGN exprList_nonEmpty
+--Reduce [vdefAssign_stmt ::= VAR nameList_nonEmpty ASSIGN exprList_nonEmpty].
+--Shift 246
+--Stack: chunks fdef_header lbracket for_opener vdefAssign_stmt
+--Reduce [for_init_stmt_nonEmpty ::= vdefAssign_stmt].
+--Shift 156
+--Stack: chunks fdef_header lbracket for_opener for_init_stmt_nonEmpty
+--Reduce [for_init_stmt ::= for_init_stmt_nonEmpty].
+--Shift 155
+--Stack: chunks fdef_header lbracket for_opener for_init_stmt
+--Shift 242
+--Stack: chunks fdef_header lbracket for_opener for_init_stmt SEMICOLON
+--Input NAME
+--Reduce [for_header1 ::= for_opener for_init_stmt SEMICOLON].
+--Shift 22
+--Stack: chunks fdef_header lbracket for_header1
+--Shift 195
+--Stack: chunks fdef_header lbracket for_header1 NAME
+--Input LE
+--Reduce [expr ::= NAME].
+--Shift 88
+--Stack: chunks fdef_header lbracket for_header1 expr
+--Shift 58
+--Stack: chunks fdef_header lbracket for_header1 expr LE
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket for_header1 expr LE NUMBER
+--Input SEMICOLON
+--Reduce [expr ::= NUMBER].
+--Shift 110
+--Stack: chunks fdef_header lbracket for_header1 expr LE expr
+--Reduce [lexpr ::= expr LE expr].
+--Shift 127
+--Stack: chunks fdef_header lbracket for_header1 lexpr
+--Shift 241
+--Stack: chunks fdef_header lbracket for_header1 lexpr SEMICOLON
+--Input RPAREN
+--Reduce [for_header2 ::= for_header1 lexpr SEMICOLON].
+--Shift 13
+--Stack: chunks fdef_header lbracket for_header2
+--Shift 237
+--Stack: chunks fdef_header lbracket for_header2 RPAREN
+--Input LBRACKET
+--Reduce [for_header ::= for_header2 RPAREN].
+--Shift 5
+--Stack: chunks fdef_header lbracket for_header
+--Shift 308
+--Stack: chunks fdef_header lbracket for_header LBRACKET
+# reading line         if(playerexist(player)) {
+--Input IF
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket for_header lbracket
+--Shift 257
+--Stack: chunks fdef_header lbracket for_header lbracket IF
+--Input LPAREN
+--Reduce [if_start ::= IF].
+--Shift 161
+--Stack: chunks fdef_header lbracket for_header lbracket if_start
+--Shift 25
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN NAME LPAREN NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN NAME LPAREN fArgs RPAREN
+--Input RPAREN
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 196
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN funcexpr
+--Reduce [expr ::= funcexpr].
+--Shift 88
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN expr
+--Reduce [lexpr ::= expr].
+--Shift 130
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN lexpr
+--Shift 256
+--Stack: chunks fdef_header lbracket for_header lbracket if_start LPAREN lexpr RPAREN
+--Input LBRACKET
+--Reduce [if_header ::= if_start LPAREN lexpr RPAREN].
+--Shift 8
+--Stack: chunks fdef_header lbracket for_header lbracket if_header
+--Shift 308
+--Stack: chunks fdef_header lbracket for_header lbracket if_header LBRACKET
+# reading line             processPlayer(player);
+--Input NAME
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket
+--Shift 116
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket NAME LPAREN NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket NAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 148
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket funcexpr
+--Shift 296
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket funcexpr SEMICOLON
+# reading line         }
+--Input RBRACKET
+--Reduce [bodyStmt ::= funcexpr SEMICOLON].
+--Shift 224
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket bodyStmtList
+--Shift 306
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket bodyStmtList RBRACKET
+# reading line     }
+--Input RBRACKET
+--Reduce [rbracket ::= RBRACKET].
+--Shift 304
+--Stack: chunks fdef_header lbracket for_header lbracket if_header lbracket bodyStmtList rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList rbracket].
+--Shift 302
+--Stack: chunks fdef_header lbracket for_header lbracket if_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header lbracket for_header lbracket if_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 255
+--Stack: chunks fdef_header lbracket for_header lbracket if_header stmt
+--Reduce [if_block ::= if_header stmt].
+--Shift 40
+--Stack: chunks fdef_header lbracket for_header lbracket if_block
+--Reduce [if_stmt ::= if_block].
+--Shift 293
+--Stack: chunks fdef_header lbracket for_header lbracket if_stmt
+--Reduce [bodyStmt ::= if_stmt].
+--Shift 224
+--Stack: chunks fdef_header lbracket for_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket for_header lbracket bodyStmtList
+--Shift 306
+--Stack: chunks fdef_header lbracket for_header lbracket bodyStmtList RBRACKET
+# reading line }
+--Input RBRACKET
+--Reduce [rbracket ::= RBRACKET].
+--Shift 304
+--Stack: chunks fdef_header lbracket for_header lbracket bodyStmtList rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList rbracket].
+--Shift 302
+--Stack: chunks fdef_header lbracket for_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header lbracket for_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 236
+--Stack: chunks fdef_header lbracket for_header stmt
+--Reduce [for_stmt ::= for_header stmt].
+--Shift 291
+--Stack: chunks fdef_header lbracket for_stmt
+--Reduce [bodyStmt ::= for_stmt].
+--Shift 224
+--Stack: chunks fdef_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 306
+--Stack: chunks fdef_header lbracket bodyStmtList RBRACKET
+# reading line function getPlayerCUnit(player) {
+--Input FUNCTION
+--Reduce [rbracket ::= RBRACKET].
+--Shift 304
+--Stack: chunks fdef_header lbracket bodyStmtList rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList rbracket].
+--Shift 302
+--Stack: chunks fdef_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 312
+--Stack: chunks fdef_header stmt
+--Reduce [fdef_chunk ::= fdef_header stmt].
+--Shift 322
+--Stack: chunks fdef_chunk
+--Reduce [chunk ::= fdef_chunk].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 216
+--Stack: chunks FUNCTION
+--Input NAME
+--Shift 215
+--Stack: chunks FUNCTION NAME
+--Input LPAREN
+--Shift 77
+--Stack: chunks FUNCTION NAME LPAREN
+--Input NAME
+--Shift 314
+--Stack: chunks FUNCTION NAME LPAREN NAME
+--Input RPAREN
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 212
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty
+--Reduce [nameList ::= nameList_nonEmpty].
+--Shift 214
+--Stack: chunks FUNCTION NAME LPAREN nameList
+--Shift 213
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN
+--Input LBRACKET
+--Reduce [fdef_header ::= FUNCTION NAME LPAREN nameList RPAREN].
+--Shift 9
+--Stack: chunks fdef_header
+--Shift 308
+--Stack: chunks fdef_header LBRACKET
+# reading line     foreach (ptr, epd : EUDLoopUnit()) {
+--Input FOREACH
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket
+--Shift 154
+--Stack: chunks fdef_header lbracket FOREACH
+--Input LPAREN
+--Shift 235
+--Stack: chunks fdef_header lbracket FOREACH LPAREN
+--Input NAME
+--Reduce [foreach_opener ::= FOREACH LPAREN].
+--Shift 81
+--Stack: chunks fdef_header lbracket foreach_opener
+--Shift 314
+--Stack: chunks fdef_header lbracket foreach_opener NAME
+--Input COMMA
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 141
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty
+--Shift 211
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COMMA
+--Input NAME
+--Shift 313
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COMMA NAME
+--Input COLON
+--Reduce [nameList_nonEmpty ::= nameList_nonEmpty COMMA NAME].
+--Shift 141
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty
+--Shift 34
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON NAME LPAREN
+--Input RPAREN
+--Reduce [fArgs ::=].
+--Shift 166
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON NAME LPAREN fArgs RPAREN
+--Input RPAREN
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 193
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON funcexpr
+--Reduce [expr ::= funcexpr].
+--Shift 113
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 140
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON exprList_nonEmpty
+--Shift 234
+--Stack: chunks fdef_header lbracket foreach_opener nameList_nonEmpty COLON exprList_nonEmpty RPAREN
+--Input LBRACKET
+--Reduce [foreach_header ::= foreach_opener nameList_nonEmpty COLON exprList_nonEmpty RPAREN].
+--Shift 4
+--Stack: chunks fdef_header lbracket foreach_header
+--Shift 308
+--Stack: chunks fdef_header lbracket foreach_header LBRACKET
+# reading line         const unitType = dwread_epd(epd + (0x64 / 4));
+--Input CONST
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket foreach_header lbracket
+--Shift 82
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST
+--Input NAME
+--Shift 314
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST NAME
+--Input ASSIGN
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 144
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty
+--Shift 37
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME
+--Input PLUS
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr
+--Shift 74
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS
+--Input LPAREN
+--Shift 64
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN NUMBER
+--Input DIVIDE
+--Reduce [expr ::= NUMBER].
+--Shift 91
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN expr
+--Shift 71
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN expr DIVIDE
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN expr DIVIDE NUMBER
+--Input RPAREN
+--Reduce [expr ::= NUMBER].
+--Shift 137
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN expr DIVIDE expr
+--Reduce [expr ::= expr DIVIDE expr].
+--Shift 91
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN expr
+--Shift 281
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS LPAREN expr RPAREN
+--Input RPAREN
+--Reduce [expr ::= LPAREN expr RPAREN].
+--Shift 126
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr PLUS expr
+--Reduce [expr ::= expr PLUS expr].
+--Shift 114
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 193
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr
+--Reduce [expr ::= funcexpr].
+--Shift 113
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 163
+--Stack: chunks fdef_header lbracket foreach_header lbracket CONST nameList_nonEmpty ASSIGN exprList_nonEmpty
+--Reduce [cdef_stmt ::= CONST nameList_nonEmpty ASSIGN exprList_nonEmpty].
+--Shift 204
+--Stack: chunks fdef_header lbracket foreach_header lbracket cdef_stmt
+--Shift 298
+--Stack: chunks fdef_header lbracket foreach_header lbracket cdef_stmt SEMICOLON
+# reading line         if(unitType == $U("Avoider")) {
+--Input IF
+--Reduce [bodyStmt ::= cdef_stmt SEMICOLON].
+--Shift 224
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList
+--Shift 257
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList IF
+--Input LPAREN
+--Reduce [if_start ::= IF].
+--Shift 161
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start
+--Shift 25
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN NAME
+--Input EQ
+--Reduce [expr ::= NAME].
+--Shift 88
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN expr
+--Shift 60
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN expr EQ
+--Input UNIT
+--Shift 181
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN expr EQ UNIT
+--Input LPAREN
+--Shift 180
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN expr EQ UNIT LPAREN
+--Input STRING
+--Shift 179
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN expr EQ UNIT LPAREN STRING
+--Input RPAREN
+--Shift 274
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN expr EQ UNIT LPAREN STRING RPAREN
+--Input RPAREN
+--Reduce [expr ::= UNIT LPAREN STRING RPAREN].
+--Shift 112
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN expr EQ expr
+--Reduce [lexpr ::= expr EQ expr].
+--Shift 130
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN lexpr
+--Shift 256
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_start LPAREN lexpr RPAREN
+--Input LBRACKET
+--Reduce [if_header ::= if_start LPAREN lexpr RPAREN].
+--Shift 8
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header
+--Shift 308
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header LBRACKET
+# reading line             const playerID = dwbreak(dwread_epd(epd + (0x4C / 4)))[[2]];
+--Input CONST
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket
+--Shift 82
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST
+--Input NAME
+--Shift 314
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST NAME
+--Input ASSIGN
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 144
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty
+--Shift 37
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME
+--Input LPAREN
+--Shift 19
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN NAME
+--Input PLUS
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr
+--Shift 74
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS
+--Input LPAREN
+--Shift 64
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN NUMBER
+--Input DIVIDE
+--Reduce [expr ::= NUMBER].
+--Shift 91
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN expr
+--Shift 71
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN expr DIVIDE
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN expr DIVIDE NUMBER
+--Input RPAREN
+--Reduce [expr ::= NUMBER].
+--Shift 137
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN expr DIVIDE expr
+--Reduce [expr ::= expr DIVIDE expr].
+--Shift 91
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN expr
+--Shift 281
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS LPAREN expr RPAREN
+--Input RPAREN
+--Reduce [expr ::= LPAREN expr RPAREN].
+--Shift 126
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr PLUS expr
+--Reduce [expr ::= expr PLUS expr].
+--Shift 114
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN NAME LPAREN fArgs RPAREN
+--Input RPAREN
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 196
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN funcexpr
+--Reduce [expr ::= funcexpr].
+--Shift 114
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 166
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs
+--Shift 261
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN NAME LPAREN fArgs RPAREN
+--Input LSQBRACKET
+--Reduce [funcexpr ::= NAME LPAREN fArgs RPAREN].
+--Shift 193
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr
+--Shift 192
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr LSQBRACKET
+--Input LSQBRACKET
+--Shift 84
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr LSQBRACKET LSQBRACKET
+--Input NUMBER
+--Shift 191
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr LSQBRACKET LSQBRACKET NUMBER
+--Input RSQBRACKET
+--Shift 199
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr LSQBRACKET LSQBRACKET NUMBER RSQBRACKET
+--Input RSQBRACKET
+--Shift 295
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr LSQBRACKET LSQBRACKET NUMBER RSQBRACKET RSQBRACKET
+--Input SEMICOLON
+--Reduce [expr ::= funcexpr LSQBRACKET LSQBRACKET NUMBER RSQBRACKET RSQBRACKET].
+--Shift 113
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 163
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket CONST nameList_nonEmpty ASSIGN exprList_nonEmpty
+--Reduce [cdef_stmt ::= CONST nameList_nonEmpty ASSIGN exprList_nonEmpty].
+--Shift 204
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket cdef_stmt
+--Shift 298
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket cdef_stmt SEMICOLON
+# reading line             if(playerID == player) {
+--Input IF
+--Reduce [bodyStmt ::= cdef_stmt SEMICOLON].
+--Shift 224
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList
+--Shift 257
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList IF
+--Input LPAREN
+--Reduce [if_start ::= IF].
+--Shift 161
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start
+--Shift 25
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN NAME
+--Input EQ
+--Reduce [expr ::= NAME].
+--Shift 88
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN expr
+--Shift 60
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN expr EQ
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN expr EQ NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 112
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN expr EQ expr
+--Reduce [lexpr ::= expr EQ expr].
+--Shift 130
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN lexpr
+--Shift 256
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_start LPAREN lexpr RPAREN
+--Input LBRACKET
+--Reduce [if_header ::= if_start LPAREN lexpr RPAREN].
+--Shift 8
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header
+--Shift 308
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header LBRACKET
+# reading line                 return ptr, epd;
+--Input RETURN
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket
+--Shift 20
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 113
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 188
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN exprList_nonEmpty
+--Shift 39
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN exprList_nonEmpty COMMA
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN exprList_nonEmpty COMMA NAME
+--Input SEMICOLON
+--Reduce [expr ::= NAME].
+--Shift 113
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN exprList_nonEmpty COMMA expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 278
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN exprList_nonEmpty COMMA exprList_nonEmpty
+--Reduce [exprList_nonEmpty ::= exprList_nonEmpty COMMA exprList_nonEmpty].
+--Shift 188
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN exprList_nonEmpty
+--Reduce [exprList ::= exprList_nonEmpty].
+--Shift 230
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket RETURN exprList
+--Reduce [return_stmt ::= RETURN exprList].
+--Shift 208
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket return_stmt
+--Shift 86
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket return_stmt SEMICOLON
+# reading line             }
+--Input RBRACKET
+--Shift 306
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket return_stmt SEMICOLON RBRACKET
+# reading line         }
+--Input RBRACKET
+--Reduce [rbracket ::= RBRACKET].
+--Shift 305
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header lbracket return_stmt SEMICOLON rbracket
+--Reduce [blockStmt ::= lbracket return_stmt SEMICOLON rbracket].
+--Shift 302
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 255
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_header stmt
+--Reduce [if_block ::= if_header stmt].
+--Shift 40
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_block
+--Reduce [if_stmt ::= if_block].
+--Shift 293
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList if_stmt
+--Reduce [bodyStmt ::= if_stmt].
+--Shift 287
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList
+--Shift 306
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList RBRACKET
+# reading line     }
+--Input RBRACKET
+--Reduce [rbracket ::= RBRACKET].
+--Shift 304
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header lbracket bodyStmtList rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList rbracket].
+--Shift 302
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 255
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_header stmt
+--Reduce [if_block ::= if_header stmt].
+--Shift 40
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_block
+--Reduce [if_stmt ::= if_block].
+--Shift 293
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList if_stmt
+--Reduce [bodyStmt ::= if_stmt].
+--Shift 287
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList
+--Shift 306
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList RBRACKET
+# reading line     return -1, -1;
+--Input RETURN
+--Reduce [rbracket ::= RBRACKET].
+--Shift 304
+--Stack: chunks fdef_header lbracket foreach_header lbracket bodyStmtList rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList rbracket].
+--Shift 302
+--Stack: chunks fdef_header lbracket foreach_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header lbracket foreach_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 233
+--Stack: chunks fdef_header lbracket foreach_header stmt
+--Reduce [foreach_stmt ::= foreach_header stmt].
+--Shift 290
+--Stack: chunks fdef_header lbracket foreach_stmt
+--Reduce [bodyStmt ::= foreach_stmt].
+--Shift 224
+--Stack: chunks fdef_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 20
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN
+--Input MINUS
+--Shift 62
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN MINUS
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN MINUS NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 134
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN MINUS expr
+--Reduce [expr ::= MINUS expr].
+--Shift 113
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 188
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty
+--Shift 39
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty COMMA
+--Input MINUS
+--Shift 62
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty COMMA MINUS
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty COMMA MINUS NUMBER
+--Input SEMICOLON
+--Reduce [expr ::= NUMBER].
+--Shift 134
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty COMMA MINUS expr
+--Reduce [expr ::= MINUS expr].
+--Shift 113
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty COMMA expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 278
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty COMMA exprList_nonEmpty
+--Reduce [exprList_nonEmpty ::= exprList_nonEmpty COMMA exprList_nonEmpty].
+--Shift 188
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList_nonEmpty
+--Reduce [exprList ::= exprList_nonEmpty].
+--Shift 230
+--Stack: chunks fdef_header lbracket bodyStmtList RETURN exprList
+--Reduce [return_stmt ::= RETURN exprList].
+--Shift 207
+--Stack: chunks fdef_header lbracket bodyStmtList return_stmt
+--Shift 85
+--Stack: chunks fdef_header lbracket bodyStmtList return_stmt SEMICOLON
+# reading line }
+--Input RBRACKET
+--Shift 306
+--Stack: chunks fdef_header lbracket bodyStmtList return_stmt SEMICOLON RBRACKET
+# reading line function collisionCheck(player, epd) {
+--Input FUNCTION
+--Reduce [rbracket ::= RBRACKET].
+--Shift 303
+--Stack: chunks fdef_header lbracket bodyStmtList return_stmt SEMICOLON rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList return_stmt SEMICOLON rbracket].
+--Shift 302
+--Stack: chunks fdef_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 312
+--Stack: chunks fdef_header stmt
+--Reduce [fdef_chunk ::= fdef_header stmt].
+--Shift 322
+--Stack: chunks fdef_chunk
+--Reduce [chunk ::= fdef_chunk].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Shift 216
+--Stack: chunks FUNCTION
+--Input NAME
+--Shift 215
+--Stack: chunks FUNCTION NAME
+--Input LPAREN
+--Shift 77
+--Stack: chunks FUNCTION NAME LPAREN
+--Input NAME
+--Shift 314
+--Stack: chunks FUNCTION NAME LPAREN NAME
+--Input COMMA
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 212
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty
+--Shift 211
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty COMMA
+--Input NAME
+--Shift 313
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty COMMA NAME
+--Input RPAREN
+--Reduce [nameList_nonEmpty ::= nameList_nonEmpty COMMA NAME].
+--Shift 212
+--Stack: chunks FUNCTION NAME LPAREN nameList_nonEmpty
+--Reduce [nameList ::= nameList_nonEmpty].
+--Shift 214
+--Stack: chunks FUNCTION NAME LPAREN nameList
+--Shift 213
+--Stack: chunks FUNCTION NAME LPAREN nameList RPAREN
+--Input LBRACKET
+--Reduce [fdef_header ::= FUNCTION NAME LPAREN nameList RPAREN].
+--Shift 9
+--Stack: chunks fdef_header
+--Shift 308
+--Stack: chunks fdef_header LBRACKET
+# reading line     const unitType = pType.getCurrentUnitType(epd);
+--Input CONST
+--Reduce [lbracket ::= LBRACKET].
+--Shift 2
+--Stack: chunks fdef_header lbracket
+--Shift 82
+--Stack: chunks fdef_header lbracket CONST
+--Input NAME
+--Shift 314
+--Stack: chunks fdef_header lbracket CONST NAME
+--Input ASSIGN
+--Reduce [nameList_nonEmpty ::= NAME].
+--Shift 144
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty
+--Shift 37
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN NAME
+--Input PERIOD
+--Reduce [expr ::= NAME].
+--Shift 113
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr
+--Shift 194
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr PERIOD
+--Input NAME
+--Shift 283
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr PERIOD NAME
+--Input LPAREN
+--Reduce [expr ::= expr PERIOD NAME].
+--Shift 113
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr
+--Shift 18
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr LPAREN NAME
+--Input RPAREN
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 167
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr LPAREN fArgs
+--Shift 262
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr LPAREN fArgs RPAREN
+--Input SEMICOLON
+--Reduce [funcexpr ::= expr LPAREN fArgs RPAREN].
+--Shift 193
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN funcexpr
+--Reduce [expr ::= funcexpr].
+--Shift 113
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 163
+--Stack: chunks fdef_header lbracket CONST nameList_nonEmpty ASSIGN exprList_nonEmpty
+--Reduce [cdef_stmt ::= CONST nameList_nonEmpty ASSIGN exprList_nonEmpty].
+--Shift 204
+--Stack: chunks fdef_header lbracket cdef_stmt
+--Shift 298
+--Stack: chunks fdef_header lbracket cdef_stmt SEMICOLON
+# reading line     if(unitType == 1 && Bring(P7, AtLeast, 1, '(men)', 'pTrace')) return 1;
+--Input IF
+--Reduce [bodyStmt ::= cdef_stmt SEMICOLON].
+--Shift 224
+--Stack: chunks fdef_header lbracket bodyStmt
+--Reduce [bodyStmtList ::= bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 257
+--Stack: chunks fdef_header lbracket bodyStmtList IF
+--Input LPAREN
+--Reduce [if_start ::= IF].
+--Shift 161
+--Stack: chunks fdef_header lbracket bodyStmtList if_start
+--Shift 25
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN NAME
+--Input EQ
+--Reduce [expr ::= NAME].
+--Shift 88
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN expr
+--Shift 60
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN expr EQ
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN expr EQ NUMBER
+--Input LAND
+--Reduce [expr ::= NUMBER].
+--Shift 112
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN expr EQ expr
+--Reduce [lexpr ::= expr EQ expr].
+--Shift 130
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr
+--Shift 29
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND
+--Input CONDITIONNAME
+--Shift 170
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME
+--Input LPAREN
+--Shift 15
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input RPAREN
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 169
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs
+--Shift 266
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs RPAREN
+--Input RPAREN
+--Reduce [lexpr ::= CONDITIONNAME LPAREN fArgs RPAREN].
+--Shift 269
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr LAND lexpr
+--Reduce [lexpr ::= lexpr LAND lexpr].
+--Shift 130
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr
+--Shift 256
+--Stack: chunks fdef_header lbracket bodyStmtList if_start LPAREN lexpr RPAREN
+--Input RETURN
+--Reduce [if_header ::= if_start LPAREN lexpr RPAREN].
+--Shift 8
+--Stack: chunks fdef_header lbracket bodyStmtList if_header
+--Shift 20
+--Stack: chunks fdef_header lbracket bodyStmtList if_header RETURN
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_header RETURN NUMBER
+--Input SEMICOLON
+--Reduce [expr ::= NUMBER].
+--Shift 113
+--Stack: chunks fdef_header lbracket bodyStmtList if_header RETURN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 188
+--Stack: chunks fdef_header lbracket bodyStmtList if_header RETURN exprList_nonEmpty
+--Reduce [exprList ::= exprList_nonEmpty].
+--Shift 230
+--Stack: chunks fdef_header lbracket bodyStmtList if_header RETURN exprList
+--Reduce [return_stmt ::= RETURN exprList].
+--Shift 209
+--Stack: chunks fdef_header lbracket bodyStmtList if_header return_stmt
+--Shift 309
+--Stack: chunks fdef_header lbracket bodyStmtList if_header return_stmt SEMICOLON
+# reading line     else if(unitType == 2 && Bring(P8, AtLeast, 1, '(men)', 'pTrace')) return 1;
+--Input ELSE
+--Reduce [stmt ::= return_stmt SEMICOLON].
+--Shift 255
+--Stack: chunks fdef_header lbracket bodyStmtList if_header stmt
+--Reduce [if_block ::= if_header stmt].
+--Shift 40
+--Stack: chunks fdef_header lbracket bodyStmtList if_block
+--Shift 160
+--Stack: chunks fdef_header lbracket bodyStmtList if_block ELSE
+--Input IF
+--Shift 254
+--Stack: chunks fdef_header lbracket bodyStmtList if_block ELSE IF
+--Input LPAREN
+--Reduce [elif_start ::= ELSE IF].
+--Shift 159
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start
+--Shift 24
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN
+--Input NAME
+--Shift 195
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN NAME
+--Input EQ
+--Reduce [expr ::= NAME].
+--Shift 88
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN expr
+--Shift 60
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN expr EQ
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN expr EQ NUMBER
+--Input LAND
+--Reduce [expr ::= NUMBER].
+--Shift 112
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN expr EQ expr
+--Reduce [lexpr ::= expr EQ expr].
+--Shift 129
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr
+--Shift 29
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND
+--Input CONDITIONNAME
+--Shift 170
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME
+--Input LPAREN
+--Shift 15
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NAME
+--Shift 147
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA NAME
+--Input COMMA
+--Reduce [expr ::= NAME].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA NUMBER
+--Input COMMA
+--Reduce [expr ::= NUMBER].
+--Shift 114
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA expr
+--Reduce [fArgs_nonEmpty ::= expr].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input COMMA
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Shift 32
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA
+--Input STRING
+--Shift 277
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA STRING
+--Input RPAREN
+--Reduce [fArgs_nonEmpty ::= STRING].
+--Shift 276
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty COMMA fArgs_nonEmpty
+--Reduce [fArgs_nonEmpty ::= fArgs_nonEmpty COMMA fArgs_nonEmpty].
+--Shift 185
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs_nonEmpty
+--Reduce [fArgs ::= fArgs_nonEmpty].
+--Shift 169
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs
+--Shift 266
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND CONDITIONNAME LPAREN fArgs RPAREN
+--Input RPAREN
+--Reduce [lexpr ::= CONDITIONNAME LPAREN fArgs RPAREN].
+--Shift 269
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr LAND lexpr
+--Reduce [lexpr ::= lexpr LAND lexpr].
+--Shift 129
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr
+--Shift 253
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_start LPAREN lexpr RPAREN
+--Input RETURN
+--Reduce [elif_header ::= elif_start LPAREN lexpr RPAREN].
+--Shift 7
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header
+--Shift 20
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header RETURN
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header RETURN NUMBER
+--Input SEMICOLON
+--Reduce [expr ::= NUMBER].
+--Shift 113
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header RETURN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 188
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header RETURN exprList_nonEmpty
+--Reduce [exprList ::= exprList_nonEmpty].
+--Shift 230
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header RETURN exprList
+--Reduce [return_stmt ::= RETURN exprList].
+--Shift 209
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header return_stmt
+--Shift 309
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header return_stmt SEMICOLON
+# reading line     else return 0;
+--Input ELSE
+--Reduce [stmt ::= return_stmt SEMICOLON].
+--Shift 252
+--Stack: chunks fdef_header lbracket bodyStmtList if_block elif_header stmt
+--Reduce [if_block ::= if_block elif_header stmt].
+--Shift 40
+--Stack: chunks fdef_header lbracket bodyStmtList if_block
+--Shift 160
+--Stack: chunks fdef_header lbracket bodyStmtList if_block ELSE
+--Input RETURN
+--Reduce [else_header ::= ELSE].
+--Shift 3
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header
+--Shift 20
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header RETURN
+--Input NUMBER
+--Shift 285
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header RETURN NUMBER
+--Input SEMICOLON
+--Reduce [expr ::= NUMBER].
+--Shift 113
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header RETURN expr
+--Reduce [exprList_nonEmpty ::= expr].
+--Shift 188
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header RETURN exprList_nonEmpty
+--Reduce [exprList ::= exprList_nonEmpty].
+--Shift 230
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header RETURN exprList
+--Reduce [return_stmt ::= RETURN exprList].
+--Shift 209
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header return_stmt
+--Shift 309
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header return_stmt SEMICOLON
+# reading line }
+--Input RBRACKET
+--Reduce [stmt ::= return_stmt SEMICOLON].
+--Shift 226
+--Stack: chunks fdef_header lbracket bodyStmtList if_block else_header stmt
+--Reduce [if_stmt ::= if_block else_header stmt].
+--Shift 293
+--Stack: chunks fdef_header lbracket bodyStmtList if_stmt
+--Reduce [bodyStmt ::= if_stmt].
+--Shift 287
+--Stack: chunks fdef_header lbracket bodyStmtList bodyStmt
+--Reduce [bodyStmtList ::= bodyStmtList bodyStmt].
+--Shift 1
+--Stack: chunks fdef_header lbracket bodyStmtList
+--Shift 306
+--Stack: chunks fdef_header lbracket bodyStmtList RBRACKET
+--Input $
+--Reduce [rbracket ::= RBRACKET].
+--Shift 304
+--Stack: chunks fdef_header lbracket bodyStmtList rbracket
+--Reduce [blockStmt ::= lbracket bodyStmtList rbracket].
+--Shift 302
+--Stack: chunks fdef_header blockStmt
+--Reduce [bodyStmt ::= blockStmt].
+--Shift 310
+--Stack: chunks fdef_header bodyStmt
+--Reduce [stmt ::= bodyStmt].
+--Shift 312
+--Stack: chunks fdef_header stmt
+--Reduce [fdef_chunk ::= fdef_header stmt].
+--Shift 322
+--Stack: chunks fdef_chunk
+--Reduce [chunk ::= fdef_chunk].
+--Shift 324
+--Stack: chunks chunk
+--Reduce [chunks ::= chunks chunk].
+--Shift 11
+--Stack: chunks
+--Reduce [program ::= chunks].
+--Accept!
+--Popping $

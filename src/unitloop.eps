@@ -1,0 +1,28 @@
+import player.playerProc as pProc;
+import bulletBase as bBase;
+
+/**
+ * Unit loop is very, very expensive. Condense all unit-related logic to here
+ */
+function mainUnitLoop() {
+    foreach(ptr, epd : EUDLoopUnit()) {
+        // Player process
+        const unitType = dwread_epd(epd + (0x64 / 4));
+        if(unitType == $U("Avoider")) {
+            const playerID = dwbreak(dwread_epd(epd + (0x4C / 4)))[[2]];
+            pProc.processPlayerCUnit(playerID, ptr, epd);
+            continue;
+        }
+
+        // Kill halted bullets
+        const w1, b0, b1 = dwbreak(dwread_epd(epd + (0x4C / 4)))[[1, 2, 3]];
+        const player, orderID = b0, b1;
+        // If enemy unit
+        if(player >= $P7) {
+            // If halted -> kill it
+            if(orderID == 156 || orderID == 160 || orderID == 2 || orderID == 3) {
+                dwwrite_epd(epd + (0x4C / 4), w1 * 65536 + b0);
+            }
+        }
+    }
+}

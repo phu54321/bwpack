@@ -1,0 +1,48 @@
+import player.playerProc as pProc;
+import player.lifesys;
+
+import bulletBase as bBase;
+import bulletTools as bTool;
+
+import unitloop as uLoop;
+
+function setBulletFlingy(flingyID) {
+    dwwrite(0x6C9930 + 4 * flingyID, 1);
+}
+
+function onPluginStart() {
+    lifesys.addLife($Force1, 10);
+
+    // 마린 외형/버튼셋
+    SetMemory(0x6644F8, SetTo, 0x4B584A0F);  // 마린 그래픽을 0F(저글링)으로
+    SetMemory(0x51783C, SetTo, 0x00E90009);  // 버튼셋 그래픽 변경
+    SetMemory(0x6616E0, Add, 130);  // 마린의 지상무기 삭제
+    SetMemory(0x6636B8, Add, 130);  // 마린의 공중무기 삭제
+
+    setBulletFlingy(43);  // 스카웃 속도 조절
+}
+
+var x = 0;
+var timer = 0;
+
+function afterTriggerExec() {
+    pProc.regeneratePlayers();
+    uLoop.mainUnitLoop();
+
+    if(timer % 8 == 0) {
+        var row;
+        if(timer < 8 * 8) row = 1 + (timer / 8);
+        else row = 17 - (timer / 8);
+        bTool.shootU($P7, $U('Fast Missile'), 5000, row);
+        bTool.shootL($P8, $U('Fast Missile'), 5000, 10 - row);
+        bTool.shootD($P7, $U('Fast Missile'), 5000, 10 - row);
+        bTool.shootR($P8, $U('Fast Missile'), 5000, row);
+    }
+    timer++;
+    if(timer == 8 * 16) timer = 0;
+
+    SetCurrentPlayer(getuserplayerid());
+    MinimapPing('minimapPing');
+
+    SetMemory(0x6D5E1C, SetTo, 1);
+}

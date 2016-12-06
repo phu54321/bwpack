@@ -1,0 +1,21 @@
+import bulletBase as bBase;
+
+function shootL(player, unitType, speed, row) {
+    const x0, x1, y = 512, 2048 - 512, 768 + 64 * (row - 1);
+    bBase.shoot(player, unitType, speed, x0, y, x1, y);
+}
+
+function shootR(player, unitType, speed, row) {
+    const x1, x0, y = 512, 2048 - 512, 768 + 64 * (row - 1);
+    bBase.shoot(player, unitType, speed, x0, y, x1, y);
+}
+
+function shootU(player, unitType, speed, row) {
+    const y0, y1, x = 512, 2048 - 512, 768 + 64 * (row - 1);
+    bBase.shoot(player, unitType, speed, x, y0, x, y1);
+}
+
+function shootD(player, unitType, speed, row) {
+    const y1, y0, x = 512, 2048 - 512, 768 + 64 * (row - 1);
+    bBase.shoot(player, unitType, speed, x, y0, x, y1);
+}

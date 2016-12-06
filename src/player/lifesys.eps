@@ -1,0 +1,26 @@
+import location as loc;
+
+/**
+ * Regenerate player, if player has sufficient life
+ */
+function regeneratePlayer(player) {
+    // Regenerate player
+    if(!Command(player, AtLeast, 1, "Avoider")) {
+        if(Accumulate(player, AtLeast, 1, Ore)) {
+            SetResources(player, Subtract, 1, Ore);
+            const regenX, regenY = loc.playerRegen(player);
+            loc.moveLocationPx($L("pRegen"), regenX, regenY);
+            CreateUnit(1, "Avoider", "pRegen", player);
+        }
+    }
+}
+
+
+function isPlayerAlive(player) {
+    return l2v(Command(player, AtLeast, 1, "Avoider"));
+}
+
+
+function addLife(player, life) {
+    SetResources(player, Add, life, Ore);
+}

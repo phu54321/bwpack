@@ -1,0 +1,58 @@
+import player.playerType as pType;
+import player.lifesys;
+
+
+function collisionCheck(player, epd);
+
+
+/**
+ * Process various things for player.
+ */
+function processPlayerCUnit(player, unitptr, unitepd) {
+    MoveLocation('pTrace', 'Avoider', player, 'Anywhere');
+
+    // Color related
+    pType.applyUnitTypeChange(player, unitepd);
+    pType.applyUnitTypeColor(player, unitepd);
+
+    dwwrite(unitptr + 0x34, 10240);
+    wwrite(unitptr + 0x48, 67);
+    bwrite(unitptr + 0x22, 40);
+
+    // Check for collision
+    if(collisionCheck(player, unitepd)) {
+        CreateUnit(1, 'HitEffect', 'pTrace', P7);
+        GiveUnits(All, 'HitEffect', P7, 'Anywhere', P9);
+        KillUnit('HitEffect', P9);
+        KillUnit('Avoider', player);
+        return;
+    }
+}
+
+
+/**
+ * Apply processPlayer for all human players.
+ */
+function regeneratePlayers() {
+    for(var player = $P1 ; player <= $P6; player++) {
+        if(playerexist(player)) {
+            lifesys.regeneratePlayer(player);
+        }
+    }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+
+/**
+ * Check for collision with missiles.
+ */
+function collisionCheck(player, epd) {
+    const unitType = pType.getCurrentUnitType(epd);
+    if(!Bring(player, AtLeast, 1, '(men)', 'hitZone')) return 0;
+    else if(unitType == 1 && Bring(P7, AtLeast, 1, '(men)', 'pTrace')) return 1;
+    else if(unitType == 2 && Bring(P8, AtLeast, 1, '(men)', 'pTrace')) return 1;
+    else return 0;
+}
