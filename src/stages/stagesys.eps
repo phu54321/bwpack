@@ -1,11 +1,52 @@
-import stages.py_stageProgressor;
+import stages.py_timeline;
+
+import stages.pattern01;
+
+const stagesFuncs = [
+    pattern01.funcs,
+    0
+];
+
+////////////////////////////////
 
 var currentStage = 0;
+const currentStageProc = EUDFuncPtr(0, 0)();
+var isGameCompleted = 0;
 
-function setStage(stage) {
-    currentStage = stage;
+function nextStage() {
+    if(isGameCompleted) return;
+    const stageFuncs = stagesFuncs[currentStage];
+    currentStage++;
+    if(stageFuncs == 0) {
+        isGameCompleted = 1;
+        return;
+    }
+
+    KillUnitAt(All, "(any unit)", "stageMain", Force2);
+
+    const stageFunc2 = EUDArray(stageFuncs);
+    const stageStarter, stageProc =
+        EUDFuncPtr(0, 0)(stageFunc2[0]),
+        EUDFuncPtr(0, 0)(stageFunc2[1]);
+
+    EUDFuncPtr(0, 0)(stageStarter)();
+    currentStageProc.setFunc(stageProc);
 }
 
-function getStage(stage) {
-    return currentStage;
+function gameCompleteProc();
+
+function runStageProc() {
+    // Staging
+    if(currentStage == 0 || Bring(Force1, AtLeast, 1, 'Avoider', 'stageEnd')) {
+        nextStage();
+    }
+    if(isGameCompleted) {
+        gameCompleteProc();
+        return;
+    }
+    (currentStageProc)();
+}
+
+function gameCompleteProc() {
+
 }

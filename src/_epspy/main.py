@@ -47,79 +47,54 @@ import _epspy.bulletBase as bBase
 import _epspy.bulletTools as bTool
 # (Line 7) import unitloop as uLoop;
 import _epspy.unitloop as uLoop
-# (Line 9) function setBulletFlingy(flingyID) {
+# (Line 8) import stages.stagesys as sSys;
+import stages._epspy.stagesys as sSys
+# (Line 10) function setBulletFlingy(flingyID) {
 @EUDFunc
 def f_setBulletFlingy(flingyID):
-    # (Line 10) dwwrite(0x6C9930 + 4 * flingyID, 1);
-    # (Line 11) }
+    # (Line 11) dwwrite(0x6C9930 + 4 * flingyID, 1);
+    # (Line 12) }
     f_dwwrite(0x6C9930 + 4 * flingyID, 1)
-    # (Line 13) function onPluginStart() {
+    # (Line 14) function onPluginStart() {
 
 @EUDFunc
 def onPluginStart():
-    # (Line 14) lifesys.addLife($Force1, 10);
-    # (Line 17) SetMemory(0x6644F8, SetTo, 0x4B584A0F);  // 마린 그래픽을 0F(저글링)으로
+    # (Line 15) lifesys.addLife($Force1, 10);
+    # (Line 18) SetMemory(0x6644F8, SetTo, 0x4B584A0F);  // 마린 그래픽을 0F(저글링)으로
     lifesys.f_addLife(18, 10)
-    # (Line 18) SetMemory(0x51783C, SetTo, 0x00E90009);  // 버튼셋 그래픽 변경
-    # (Line 19) SetMemory(0x6616E0, Add, 130);  // 마린의 지상무기 삭제
-    # (Line 20) SetMemory(0x6636B8, Add, 130);  // 마린의 공중무기 삭제
-    # (Line 22) setBulletFlingy(43);  // 스카웃 속도 조절
+    # (Line 19) SetMemory(0x51783C, SetTo, 0x00E90009);  // 버튼셋 그래픽 변경
+    # (Line 20) SetMemory(0x6616E0, Add, 130);  // 마린의 지상무기 삭제
+    # (Line 21) SetMemory(0x6636B8, Add, 130);  // 마린의 공중무기 삭제
+    # (Line 23) setBulletFlingy(43);  // 스카웃 속도 조절
     DoActions([
         SetMemory(0x6644F8, SetTo, 0x4B584A0F),
         SetMemory(0x51783C, SetTo, 0x00E90009),
         SetMemory(0x6616E0, Add, 130),
         SetMemory(0x6636B8, Add, 130)
     ])
-    # (Line 23) }
+    # (Line 24) }
     f_setBulletFlingy(43)
-    # (Line 25) var x = 0;
+    # (Line 26) var x = 0;
 
 x = EUDVariable(0)
-# (Line 26) var timer = 0;
+# (Line 27) var timer = 0;
 timer = EUDVariable(0)
-# (Line 28) function afterTriggerExec() {
+# (Line 29) function afterTriggerExec() {
 @EUDFunc
 def afterTriggerExec():
-    # (Line 29) pProc.regeneratePlayers();
-    # (Line 30) uLoop.mainUnitLoop();
+    # (Line 30) pProc.regeneratePlayers();
+    # (Line 31) uLoop.mainUnitLoop();
     pProc.f_regeneratePlayers()
-    # (Line 32) if(timer % 8 == 0) {
+    # (Line 32) sSys.runStageProc();
     uLoop.f_mainUnitLoop()
-    if EUDIf()(timer % 8 == 0):
-        # (Line 33) var row;
-        row = EUDVariable()
-        # (Line 34) if(timer < 8 * 8) row = 1 + (timer / 8);
-        if EUDIf()(timer < 8 * 8):
-            row << (1 + (timer // 8))
-            # (Line 35) else row = 17 - (timer / 8);
-        if EUDElse()():
-            row << (17 - (timer // 8))
-            # (Line 36) bTool.shootU($P7, $U('Fast Missile'), 5000, row);
-        EUDEndIf()
-        # (Line 37) bTool.shootL($P8, $U('Fast Missile'), 5000, 10 - row);
-        bTool.f_shootU(6, EncodeUnit('Fast Missile'), 5000, row)
-        _t3 = bTool.f_shootL(7, EncodeUnit('Fast Missile'), 5000, 10 - row)
-        # (Line 38) bTool.shootD($P7, $U('Fast Missile'), 5000, 10 - row);
-        _t3
-        _t4 = bTool.f_shootD(6, EncodeUnit('Fast Missile'), 5000, 10 - row)
-        # (Line 39) bTool.shootR($P8, $U('Fast Missile'), 5000, row);
-        _t4
-        # (Line 40) }
-        bTool.f_shootR(7, EncodeUnit('Fast Missile'), 5000, row)
-        # (Line 41) timer++;
-    EUDEndIf()
-    timer.__iadd__(1)
-    # (Line 42) if(timer == 8 * 16) timer = 0;
-    if EUDIf()(timer == 8 * 16):
-        timer << (0)
-        # (Line 44) SetCurrentPlayer(getuserplayerid());
-    EUDEndIf()
-    # (Line 45) MinimapPing('minimapPing');
-    # (Line 47) SetMemory(0x6D5E1C, SetTo, 1);
+    # (Line 34) SetCurrentPlayer(getuserplayerid());
+    sSys.f_runStageProc()
+    # (Line 35) MinimapPing('minimapPing');
+    # (Line 37) SetMemory(0x6D5E1C, SetTo, 1);
     DoActions([
         SetCurrentPlayer(f_getuserplayerid())
     ])
-    # (Line 48) }
+    # (Line 38) }
     DoActions([
         MinimapPing('minimapPing'),
         SetMemory(0x6D5E1C, SetTo, 1)

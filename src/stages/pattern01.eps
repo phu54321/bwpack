@@ -1,0 +1,23 @@
+import stages.py_timeline as tL;
+import bulletTools as bTool;
+
+function stagestart() {
+    // Stage starter
+}
+
+function stageproc() {
+    // Stagle processor
+    foreach(timer : tL.Timeline(8 * 16)) {
+        if(timer % 8 == 0) {
+            var row;
+            if(timer < 8 * 8) row = 1 + (timer / 8);
+            else row = 17 - (timer / 8);
+            bTool.shootU($P7, $U('Fast Missile'), 5000, row);
+            bTool.shootL($P8, $U('Fast Missile'), 5000, 10 - row);
+            bTool.shootD($P7, $U('Fast Missile'), 5000, 10 - row);
+            bTool.shootR($P8, $U('Fast Missile'), 5000, row);
+        }
+    }
+}
+
+const funcs = [EUDFuncPtr(0, 0)(f_stagestart), EUDFuncPtr(0, 0)(f_stageproc)];

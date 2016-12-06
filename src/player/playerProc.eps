@@ -51,7 +51,7 @@ function regeneratePlayers() {
  */
 function collisionCheck(player, epd) {
     const unitType = pType.getCurrentUnitType(epd);
-    if(!Bring(player, AtLeast, 1, '(men)', 'hitZone')) return 0;
+    if(!Bring(player, AtLeast, 1, '(men)', 'stageMain')) return 0;
     else if(unitType == 1 && Bring(P7, AtLeast, 1, '(men)', 'pTrace')) return 1;
     else if(unitType == 2 && Bring(P8, AtLeast, 1, '(men)', 'pTrace')) return 1;
     else return 0;

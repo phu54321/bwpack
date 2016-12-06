@@ -101,8 +101,8 @@ def f_regeneratePlayers():
 def f_collisionCheck(player, epd):
     # (Line 53) const unitType = pType.getCurrentUnitType(epd);
     unitType = pType.f_getCurrentUnitType(epd)
-    # (Line 54) if(!Bring(player, AtLeast, 1, '(men)', 'hitZone')) return 0;
-    if EUDIf()(Bring(player, AtLeast, 1, '(men)', 'hitZone'), neg=True):
+    # (Line 54) if(!Bring(player, AtLeast, 1, '(men)', 'stageMain')) return 0;
+    if EUDIf()(Bring(player, AtLeast, 1, '(men)', 'stageMain'), neg=True):
         EUDReturn(0)
         # (Line 55) else if(unitType == 1 && Bring(P7, AtLeast, 1, '(men)', 'pTrace')) return 1;
     if EUDElseIf()([unitType == 1, Bring(P7, AtLeast, 1, '(men)', 'pTrace')]):
