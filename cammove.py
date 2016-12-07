@@ -32,6 +32,7 @@ def getTicks():
 
 lastTick = EUDVariable(-1)
 scrollData = Db(52)
+blank = Db(b'\x08' * 52)
 
 
 @EUDFunc
@@ -44,6 +45,8 @@ def afterTriggerExec():
         currentTick = getTicks()
         if EUDIf()(lastTick == -1):  # Just started following
             lastTick << currentTick
+            f_memcpy(scrollData, 0x513B68, 49)
+            f_memcpy(0x513B68, blank, 49)
         EUDEndIf()
 
         prevCamX = f_dwread_epd(EPD(0x62848C))
@@ -110,10 +113,14 @@ def afterTriggerExec():
             SetMemory(0x6284A8, SetTo, dsty)
         ])
 
+        for i in EUDLoopRange(332581, 332881):
+            f_dwwrite_epd(i, 0x01010101)
+
         lastTick << currentTick
 
     if EUDElse()():
         if EUDIfNot()(lastTick == -1):
             lastTick << -1
+            f_memcpy(0x513B68, scrollData, 49)
         EUDEndIf()
     EUDEndIf()

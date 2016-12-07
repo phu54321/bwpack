@@ -1,5 +1,6 @@
 import player.playerProc as pProc;
 import player.lifesys as lSys;
+import player.joystick as jSys;
 
 import bulletBase as bBase;
 import bulletTools as bTool;
@@ -17,7 +18,9 @@ function setBulletFlingy(flingyID) {
 function onPluginStart() {
     // 마린 외형/버튼셋
     SetMemory(0x6644F8, SetTo, 0x4B584A0F);  // 마린 그래픽을 0F(저글링)으로
-    SetMemory(0x51783C, SetTo, 0x00E90009);  // 버튼셋 그래픽 변경
+    SetMemory(0x5187E8, Subtract, 5);   // 마린에게 스팀팩만 남긴다.
+    SetMemory(0x5187EC, Add, 100);  // 마린에게 스팀팩만 남긴다.
+    SetMemory(0x51783C, SetTo, 0x00E90009);  // 스팀팩 버튼셋 그래픽 변경
     SetMemory(0x6616E0, Add, 130);  // 마린의 지상무기 삭제
     SetMemory(0x6636B8, Add, 130);  // 마린의 공중무기 삭제
 
@@ -31,6 +34,10 @@ function onPluginStart() {
     // 스테이지 관련
     SetCurrentPlayer(getuserplayerid());
     DisplayText("\x1F♬\x04 cycerin - Spacefighter\n\n");
+
+    // 조이스틱
+    jSys.createJoysticks();
+    SetMemory(0x518848, Subtract, 7);  // 조이스틱 버튼셋 삭제
 }
 
 var x = 0;
@@ -49,7 +56,7 @@ function afterTriggerExec() {
         issueGameComplete();
         return;
     }
-
+    jSys.mainKeyState.update();
     sSys.runStageProc();
     uLoop.mainUnitLoop();
     lSys.lifeProc();

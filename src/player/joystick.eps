@@ -1,0 +1,62 @@
+import player.py_keystate;
+import location as loc;
+import bulletBase as bBase;
+
+const mainKeyState = keystate.KeyState('w', 's', 'a', 'd');
+
+function createJoystick(player) {
+    const joyX, joyY = loc.playerJoystick(player);
+    loc.moveLocationPx($L("pJoystick"), joyX, joyY);
+    const ptr, epd = bBase.getNextGeneratedUnit();
+    if(ptr != 0) {
+        CreateUnit(1, "Joystick", "pJoystick", player);
+        bBase.makeUnitStackable(epd);
+    }
+}
+
+function createJoysticks() {
+    for(var player = $P1 ; player <= $P6; player++) {
+        if(playerexist(player)) {
+            createJoystick(player);
+        }
+    }
+}
+
+
+function procJoystick(player, unitepd) {
+    // Key input
+    if(player == getuserplayerid()) {
+        // If selected unit is avoider unit -> Process keys
+        if(epdread_epd(EPD(0x6284E8)) == unitepd && Memory(0x6284EC, Exactly, 0)) {
+            var dx, dy = 1, 1;
+            if(mainKeyState.currentlyKeyDown('w')) dy--;
+            if(mainKeyState.currentlyKeyDown('s')) dy++;
+            if(mainKeyState.currentlyKeyDown('a')) dx--;
+            if(mainKeyState.currentlyKeyDown('d')) dx++;
+            const dstX = 800 + dx * 123;
+            const dstY = 800 + dy * 357;
+            QueueGameCommand_RightClick(dstY * 0x10000 + dstX);
+        }
+    }
+
+    // Interpret key
+    const dstX, dstY = dwbreak(dwread_epd(unitepd + (0x58 / 4)))[[0, 1]];
+    const xq, xr = div(dstX - 800, 123);
+    const yq, yr = div(dstY - 800, 357);
+    if(xr == 0 && yr == 0 && xq <= 2 && yq <= 2) {
+        const pMoveDst = $L('pMoveDst');
+        MoveLocation('pMoveDst', 'Avoider', player, 'Anywhere');
+        const px, py = loc.getLocationTL(pMoveDst);
+        const dx, dy = xq - 1, yq - 1;
+        const stepDelta = 16;
+        const dstX, dstY = px + stepDelta * dx, py + stepDelta * dy;
+        simpleprint(dx, dy);
+        // dwwrite_epd(unitepd + (0x58 / 4), dstY * 0x10000 + dstX);
+        loc.moveLocationPx($L('pMoveDst'), dstX, dstY);
+        Order('Avoider', player, 'Anywhere', Move, 'pMoveDst');
+    }
+
+    const joyX, joyY = loc.playerJoystick(player);
+    loc.moveLocationPx($L("pJoystick"), joyX, joyY);
+    MoveUnit(All, 'Joystick', player, 'Anywhere', 'pJoystick');
+}
