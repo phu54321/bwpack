@@ -2,7 +2,29 @@ import player.py_keystate;
 import location as loc;
 import bulletBase as bBase;
 
+function QueueGameCommand_Select(n, _array) {
+    const array = EUDArray(_array);
+    const bw = EUDByteWriter();
+    const buffer = Db(b'\x090123456789012345678901234');
+    bw.seekoffset(buffer + 1);
+    bw.writebyte(n);
+
+    for(var i = 0 ; i < n ; i++) {
+        const unitptr = array[i];
+        const unitIndex = (unitptr - 0x59CCA8) / 336 + 1;
+        const uniquenessIdentifier = bread(unitptr + 0xA5);
+        const targetID = unitIndex | (uniquenessIdentifier << 11);
+        const b0, b1 = dwbreak(targetID)[[2, 3]];
+        bw.writebyte(b0);
+        bw.writebyte(b1);
+    }
+    bw.flushdword();
+    QueueGameCommand(buffer, 2 * (n + 1));
+}
+
+
 const mainKeyState = keystate.KeyState('w', 's', 'a', 'd');
+const joystickPtr = [0, 0, 0, 0, 0, 0];
 
 function createJoystick(player) {
     const joyX, joyY = loc.playerJoystick(player);
@@ -11,6 +33,7 @@ function createJoystick(player) {
     if(ptr != 0) {
         CreateUnit(1, "Joystick", "pJoystick", player);
         bBase.makeUnitStackable(epd);
+        joystickPtr[player] = ptr;
     }
 }
 
@@ -22,23 +45,35 @@ function createJoysticks() {
     }
 }
 
+function sendJoystickCommand(player, unitptr, unitepd) {
+    // Key input
+    if(player == getuserplayerid() && Memory(0x6284B8, Exactly, unitptr)) {
+        // If selected unit is avoider unit -> Process keys
+        var dx, dy = 1, 1;
+        if(mainKeyState.currentlyKeyDown('w')) dy--;
+        if(mainKeyState.currentlyKeyDown('s')) dy++;
+        if(mainKeyState.currentlyKeyDown('a')) dx--;
+        if(mainKeyState.currentlyKeyDown('d')) dx++;
+        const dstX = 800 + dx * 123;
+        const dstY = 800 + dy * 357;
+
+        const selbuf0 = [0];
+        selbuf0[0] = joystickPtr[player];
+        QueueGameCommand_Select(1, selbuf0);
+        QueueGameCommand_RightClick(dstY * 0x10000 + dstX);
+
+        var prevSelectionCount = 0;
+        const prevSelections = EUDArray(12);
+        for(prevSelectionCount = 0 ; prevSelectionCount < 12 ; prevSelectionCount++) {
+            const selData = dwread_epd(EPD(0x6284B8) + prevSelectionCount);
+            if(selData == 0) break;
+            prevSelections[prevSelectionCount] = selData;
+        }
+        QueueGameCommand_Select(prevSelectionCount, prevSelections);
+    }
+}
 
 function procJoystick(player, unitepd) {
-    // Key input
-    if(player == getuserplayerid()) {
-        // If selected unit is avoider unit -> Process keys
-        if(epdread_epd(EPD(0x6284E8)) == unitepd && Memory(0x6284EC, Exactly, 0)) {
-            var dx, dy = 1, 1;
-            if(mainKeyState.currentlyKeyDown('w')) dy--;
-            if(mainKeyState.currentlyKeyDown('s')) dy++;
-            if(mainKeyState.currentlyKeyDown('a')) dx--;
-            if(mainKeyState.currentlyKeyDown('d')) dx++;
-            const dstX = 800 + dx * 123;
-            const dstY = 800 + dy * 357;
-            QueueGameCommand_RightClick(dstY * 0x10000 + dstX);
-        }
-    }
-
     // Interpret key
     const dstX, dstY = dwbreak(dwread_epd(unitepd + (0x58 / 4)))[[0, 1]];
     const xq, xr = div(dstX - 800, 123);
@@ -48,10 +83,8 @@ function procJoystick(player, unitepd) {
         MoveLocation('pMoveDst', 'Avoider', player, 'Anywhere');
         const px, py = loc.getLocationTL(pMoveDst);
         const dx, dy = xq - 1, yq - 1;
-        const stepDelta = 16;
+        const stepDelta = 32;
         const dstX, dstY = px + stepDelta * dx, py + stepDelta * dy;
-        simpleprint(dx, dy);
-        // dwwrite_epd(unitepd + (0x58 / 4), dstY * 0x10000 + dstX);
         loc.moveLocationPx($L('pMoveDst'), dstX, dstY);
         Order('Avoider', player, 'Anywhere', Move, 'pMoveDst');
     }

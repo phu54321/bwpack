@@ -21,6 +21,7 @@ function mainUnitLoop() {
             const unitType = dwread_epd(epd + (0x64 / 4));
             if(unitType == $U("Avoider")) {
                 pProc.processPlayerCUnit(player, ptr, epd);
+                jProc.sendJoystickCommand(player, ptr, epd);
                 continue;
             }
             else if(unitType == $U('Joystick')) {
