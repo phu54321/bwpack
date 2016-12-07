@@ -5,3 +5,7 @@ output: Missile pack [BW] v0.scx
 [noAirCollision]
 [eudTurbo]
 [src/entry.py]
+
+[cammove.py]
+targetloc : pTrace
+inertia: 5

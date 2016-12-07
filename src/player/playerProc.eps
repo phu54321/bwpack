@@ -28,6 +28,13 @@ function processPlayerCUnit(player, unitptr, unitepd) {
         SetResources(player, Subtract, 1, Ore);
         return;
     }
+
+    if(getuserplayerid() == player && Bring(player, Exactly, 0, 'Avoider', 'restZone')) {
+        SetSwitch('cammove', Set);
+    }
+    else {
+        SetSwitch('cammove', Clear);
+    }
 }
 
 
