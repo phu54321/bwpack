@@ -13,7 +13,7 @@ function isTimerHit() {
     else return 0;
 }
 
-const bgmContent = py_open('src/bgm.wav', 'rb').read();
+const bgmContent = py_open('src/bgm22050.wav', 'rb').read();
 
 function bgmloop() {
     MPQAddWave('staredit\\wav\\bgmmain.wav', bgmContent);
