@@ -24,7 +24,7 @@ function onPluginStart() {
     setBulletFlingy(43);  // 스카웃 속도 조절
 
     // 라이프 시스템 초기화
-    lSys.addLife($Force1, 10);
+    lSys.setLife($Force1, 20);
     LeaderBoardResources(Ore, "\x04Remaining life");
     LeaderBoardComputerPlayers(Disable);
 
@@ -45,6 +45,10 @@ function afterTriggerExec() {
     bgmplayer.bgmloop();
 
     if(gameEnded) return;
+    else if(Accumulate(Force1, Exactly, 0, Ore)) {
+        issueGameComplete();
+        return;
+    }
 
     sSys.runStageProc();
     uLoop.mainUnitLoop();

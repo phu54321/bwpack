@@ -1,2 +1,5 @@
 Missile*.scx
 _epspy
+*.pyo
+*.pyc
+epScript.exe

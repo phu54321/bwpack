@@ -1,10 +1,15 @@
 import location as loc;
-import main;
+import bulletBase as bBase;
+
 
 function createPlayer(player) {
     const regenX, regenY = loc.playerRegen(player);
     loc.moveLocationPx($L("pRegen"), regenX, regenY);
-    CreateUnit(1, "Avoider", "pRegen", player);    
+    const ptr, epd = bBase.getNextGeneratedUnit();
+    if(ptr != 0) {
+        CreateUnit(1, "Avoider", "pRegen", player);
+        bBase.makeUnitStackable(epd);
+    }
 }
 
 function createPlayers() {
@@ -30,13 +35,8 @@ function regeneratePlayer(player) {
 }
 
 
-function isPlayerAlive(player) {
-    return l2v(Command(player, AtLeast, 1, "Avoider"));
-}
-
-
-function addLife(player, life) {
-    SetResources(player, Add, life, Ore);
+function setLife(player, life) {
+    SetResources(player, SetTo, life, Ore);
 }
 
 
@@ -49,14 +49,10 @@ function lifeProc() {
     }
 
     // 패배 조건
-    if(
-        Bring(Force1, Exactly, 0, 'Avoider', 'Anywhere') &&
-        Accumulate(Force1, Exactly, 0, Ore)
-    ) {
+    if(Accumulate(Force1, Exactly, 0, Ore)) {
         DisplayText(SCMD2Text("\
-<04>Game over\
+<04>Game over\n\
 <05>  - Defeat();"));
         Defeat();
-        main.issueGameComplete();
     }
 }

@@ -32,6 +32,7 @@ function nextStage() {
 
     KillUnit('(any unit)', Force2);
     RemoveUnit('Avoider', Force1);
+    lSys.setLife($Force1, 20);
     lSys.createPlayers();
 
     const stageFunc2 = EUDArray(stageFuncs);
