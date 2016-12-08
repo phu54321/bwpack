@@ -1,6 +1,5 @@
 import player.playerProc as pProc;
 import player.lifesys as lSys;
-import player.joystick as jSys;
 
 import bulletBase as bBase;
 import bulletTools as bTool;
@@ -36,7 +35,6 @@ function onPluginStart() {
     DisplayText("\x1F♬\x04 cycerin - Spacefighter\n\n");
 
     // 조이스틱
-    jSys.createJoysticks();
     SetMemory(0x518848, Subtract, 7);  // 조이스틱 버튼셋 삭제
 }
 
@@ -56,7 +54,6 @@ function afterTriggerExec() {
         issueGameComplete();
         return;
     }
-    jSys.mainKeyState.update();
     sSys.runStageProc();
     uLoop.mainUnitLoop();
     lSys.lifeProc();

@@ -2,11 +2,6 @@ function playerRegen(player) {
     return 864 + player * 64, 1376;
 }
 
-function playerJoystick(player) {
-    return 864 + player * 64, 1376 + 128;
-}
-
-
 function moveLocationPx(locID, x, y) {
     SetMemory(0x58DC60 + 20 * locID + 0x00, SetTo, x);
     SetMemory(0x58DC60 + 20 * locID + 0x04, SetTo, y);
