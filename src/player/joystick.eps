@@ -92,4 +92,5 @@ function procJoystick(player, unitepd) {
     const joyX, joyY = loc.playerJoystick(player);
     loc.moveLocationPx($L("pJoystick"), joyX, joyY);
     MoveUnit(All, 'Joystick', player, 'Anywhere', 'pJoystick');
+    Order('Joystick', player, 'pJoystick', Move, 'pJoystick');
 }
