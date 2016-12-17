@@ -1,0 +1,56 @@
+// Circular shooter
+
+import stages.py_timeline as tL;
+import bulletTools as bTool;
+import bulletBase as bBase;
+
+function stagestart() {
+    for(var j = 1 ; j <= 9 ; j++) {
+        bTool.shootUTiled($P7, $U("Missile"), 5, j);
+        bTool.shootUTiled($P8, $U("Missile"), 5, j);
+    }
+}
+
+const N = 60;
+const epds = EUDArray(N);
+var currentAngle = 0;
+
+function stageproc() {
+    foreach(i : tL.Timeline(54)) {
+        if(i == 0) {
+            // player, unitType, speed, tx, ty, angle
+            for(var j = 0 ; j < N ; j++) {
+                epds[j] = bTool.shootAngleTiled(
+                    $P7,
+                    $U('Missile'),
+                    40,
+                    5, 5,
+                    (360 / N) * j + currentAngle)[[1]];
+            }
+            currentAngle = (currentAngle + 23) % 360;
+        }
+        else if(i == 24) {
+            // player, unitType, speed, tx, ty, angle
+            for(var j = 0 ; j < N ; j++) {
+                if(epds[j]) {
+                    const px, py = bBase.getBulletPos(epds[j]);
+                    const bvx, bvy = bBase.getBulletVelocity(epds[j]);
+                    const bangle = atan2(bvy, bvx);
+                    bBase.killBullet($P7, epds[j]);
+                    bTool.shootAngle($P8, $U('Small Missile'), 8, px, py, bangle + 180);
+                    bTool.shootAngle($P8, $U('Small Missile'), 6, px, py, bangle + 136);
+                    bTool.shootAngle($P8, $U('Small Missile'), 4, px, py, bangle + 164);
+                    bTool.shootAngle($P8, $U('Small Missile'), 2, px, py, bangle + 200);
+                }
+            }
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+const funcs = [
+    DBString("Freeze!"),
+    EUDFuncPtr(0, 0)(f_stagestart),
+    EUDFuncPtr(0, 0)(f_stageproc)
+];

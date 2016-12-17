@@ -4,10 +4,14 @@ import stages.pattern01;
 import stages.pattern02;
 import stages.pattern02_var;
 import stages.pattern03;
+import stages.pattern04;
+import stages.pattern05;
 
 import player.lifesys as lSys;
 
 const stagesFuncs = [
+    pattern04.funcs,
+    pattern05.funcs,
     pattern02.funcs,  // Basic tutorial
     pattern02_var.funcs,  // Basic tutorial 2
     pattern01.funcs,  // Thing
@@ -25,13 +29,15 @@ function nextStage() {
     if(isGameCompleted) return;
     const stageFuncs = stagesFuncs[currentStage];
     currentStage++;
+    KillUnit('(any unit)', Force2);
+    RemoveUnit('Avoider', Force1);
+
     if(stageFuncs == 0) {
         isGameCompleted = 1;
+        lSys.setLife($Force1, 999999999);
         return;
     }
 
-    KillUnit('(any unit)', Force2);
-    RemoveUnit('Avoider', Force1);
     lSys.setLife($Force1, 20);
     lSys.createPlayers();
 

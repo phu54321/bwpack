@@ -14,10 +14,10 @@ function stageproc() {
             var row;
             if(timer < 8 * 8) row = 1 + (timer / 8);
             else row = 17 - (timer / 8);
-            bTool.shootU($P7, $U('Fast Missile'), 5, row);
-            bTool.shootL($P8, $U('Fast Missile'), 5, 10 - row);
-            bTool.shootD($P7, $U('Fast Missile'), 5, 10 - row);
-            bTool.shootR($P8, $U('Fast Missile'), 5, row);
+            bTool.shootUTiled($P7, $U('Fast Missile'), 5, row);
+            bTool.shootLTiled($P8, $U('Fast Missile'), 5, 10 - row);
+            bTool.shootDTiled($P7, $U('Fast Missile'), 5, 10 - row);
+            bTool.shootRTiled($P8, $U('Fast Missile'), 5, row);
         }
     }
 }
@@ -25,7 +25,7 @@ function stageproc() {
 ///////////////////////////////////////////////////////////////////////////////
 
 const funcs = [
-    DBString("Complex maze"),
+    DBString("Cross stage"),
     EUDFuncPtr(0, 0)(f_stagestart),
     EUDFuncPtr(0, 0)(f_stageproc)
 ];

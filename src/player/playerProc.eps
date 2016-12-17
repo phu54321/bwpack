@@ -28,7 +28,8 @@ function processPlayerCUnit(player, unitptr, unitepd) {
         return;
     }
 
-    if(getuserplayerid() == player && Bring(player, Exactly, 0, 'Avoider', 'restZone')) {
+    const qPressed = f_bread(0x596A18 + 0x51);  // Q
+    if(qPressed) {
         SetSwitch('cammove', Set);
     }
     else {

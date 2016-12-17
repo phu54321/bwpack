@@ -1,5 +1,12 @@
+# Cammove v2
+#
 # Algorithm by matbing(sksljh2091@naver.com)
 # Pluginified by trgk(phu54321@naver.com)
+#
+# 2015-12-08 : Initial Release
+# 2016-12-09 : Some crash bug fixed, Zero scrolling while camera is following
+#
+
 
 from eudplib import *
 
@@ -7,6 +14,7 @@ cammoveLoc = GetLocationIndex('cammoveLoc')
 inertia = int(settings.get('inertia', 5))
 maxspeed = int(settings.get('maxspeed', 48))
 target = GetLocationIndex(settings['targetloc'])
+
 
 def onPluginStart():
     DoActions([
@@ -32,7 +40,7 @@ def getTicks():
 
 lastTick = EUDVariable(-1)
 scrollData = Db(52)
-blank = Db(b'\x08' * 52)
+blank = Db(b'\0' * 52)
 
 
 @EUDFunc
@@ -82,14 +90,16 @@ def afterTriggerExec():
                 # potential overflows
                 d = EUDVariable()
                 if EUDIf()([dxabs <= 100, dyabs <= 100]):
+                    # Better accuracy
                     d << f_sqrt(fpQ * fpQ * (dxabs * dxabs + dyabs * dyabs))
                 if EUDElse()():
-                    d << f_sqrt(fpQ * fpQ * (dxabs * dxabs + dyabs * dyabs))
+                    # Sacrifice accuracy to prevent overflowing
+                    d << fpQ * f_sqrt(dxabs * dxabs + dyabs * dyabs)
                 EUDEndIf()
 
-                C = fpQ * fpQ // d
                 newd = EUDVariable()
-                newd << (fpQ * fpQ // (dt // inertia + C))
+                newd << d * fpQ // (d * dt // fpQ + fpQ)
+
                 if EUDIf()(d - newd >= maxspeed * fpQ):
                     newd << d - maxspeed * fpQ
                 EUDEndIf()
@@ -102,6 +112,10 @@ def afterTriggerExec():
                 dsty << locy - dy_sgn * newdy
             EUDEndIf()
 
+        dstTileX = dstx // 32
+        dstTileY = dsty // 32
+        dstTileXY = dstTileY * 0x10000 + dstTileX
+
         DoActions([
             SetCurrentPlayer(f_getuserplayerid()),
             SetMemory(0x58DC60 + 20 * cammoveLoc + 0x0, SetTo, dstx),
@@ -110,7 +124,10 @@ def afterTriggerExec():
             SetMemory(0x58DC60 + 20 * cammoveLoc + 0xC, SetTo, dsty + 384),
             CenterView(cammoveLoc + 1),
             SetMemory(0x62848C, SetTo, dstx),
-            SetMemory(0x6284A8, SetTo, dsty)
+            SetMemory(0x6284A8, SetTo, dsty),
+            SetMemory(0x628498, SetTo, dstTileX),
+            SetMemory(0x6284AC, SetTo, dstTileY),
+            SetMemory(0x57F1D0, SetTo, dstTileXY),
         ])
 
         for i in EUDLoopRange(332581, 332881):

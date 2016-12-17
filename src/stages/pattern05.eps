@@ -1,0 +1,38 @@
+// Circular shooter
+
+import stages.py_timeline as tL;
+import bulletTools as bTool;
+import bulletBase as bBase;
+
+function stagestart() {
+}
+
+function stageproc() {
+    const stairLoop = 48;
+    const stairN = 3;
+
+    const x0, x1 = bTool.getTilesPositionX(0), bTool.getTilesPositionX(10);
+    const y0, y1 = bTool.getTilesPositionY(-3), bTool.getTilesPositionY(13);
+    const deltaX = (x1 - x0) / stairN;
+
+    foreach(i : tL.Timeline(stairLoop)) {
+        if(i % 4 != 0) continue;
+
+        const startX = deltaX * i / stairLoop;
+        var x7, x8 = x0 + startX, x1 - startX;
+        for(var j = 0 ; j < stairN ; j++) {
+            bBase.shoot($P7, $U("Missile"), 6, x7, y0, x7, y1);
+            bBase.shoot($P8, $U("Missile"), 6, x8, y0, x8, y1);
+            x7 += deltaX;
+            x8 -= deltaX;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+const funcs = [
+    DBString("Cross stair"),
+    EUDFuncPtr(0, 0)(f_stagestart),
+    EUDFuncPtr(0, 0)(f_stageproc)
+];

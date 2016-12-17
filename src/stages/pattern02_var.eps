@@ -6,7 +6,7 @@ import bulletTools as bTool;
 function placeAll(player) {
     for(var y = 1 ; y <= 9 ; y++) {
         for(var x = 1 ; x <= 9 ; x++) {
-            bTool.place(player, $U('Missile'), x, y);
+            bTool.placeTiled(player, $U('Missile'), x, y);
         }
     }
 }

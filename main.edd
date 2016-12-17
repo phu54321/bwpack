@@ -2,6 +2,7 @@
 input: basemap.scx
 output: Missile pack [BW] v0.scx
 
+# [freeze]
 [noAirCollision]
 [eudTurbo]
 [src/entry.py]

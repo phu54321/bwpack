@@ -2,7 +2,9 @@ import location as loc;
 
 
 function getNextGeneratedUnit() {
-    return dwepdread_epd(EPD(0x628438));
+    var ptr, epd = dwepdread_epd(EPD(0x628438));
+    if(ptr == 0) epd = 0;
+    return ptr, epd;
 }
 
 
@@ -14,37 +16,66 @@ function makeUnitStackable(epd) {
 }
 
 
-function createBullet(unitType, player, speed, x, y) {
+function createBullet(player, unitType, speed, x, y) {
     speed = speed * 320;    // Tile speed -> real speed
     loc.moveLocationPx($L('mSource'), x, y);
-    const ptr, epd = getNextGeneratedUnit();
+    var ptr, epd = getNextGeneratedUnit();
     if(ptr != 0) {
         CreateUnit(1, unitType, 'mSource', player);
-        makeUnitStackable(epd);
-        SetMemoryEPD(epd + (0x34 / 4), SetTo, speed);
 
         // Make sprite unselectable
         const sprite_epd = epdread_epd(epd + (0x0C / 4));
-        const image_epd = epdread_epd(sprite_epd + (0x18 / 4));
-        const initialFlag = dwread_epd(image_epd + (0x0C / 4));
-        dwwrite_epd(image_epd + (0x0C / 4), initialFlag & ~0x0020);
+        if(sprite_epd == EPD(0)) {
+            ptr, epd = 0, 0;
+        }
+        else {
+            makeUnitStackable(epd);
+            SetMemoryEPD(epd + (0x34 / 4), SetTo, speed);
+            const image_epd = epdread_epd(sprite_epd + (0x18 / 4));
+            const initialFlag = dwread_epd(image_epd + (0x0C / 4));
+            dwwrite_epd(image_epd + (0x0C / 4), initialFlag & ~0x0020);
+        }
     }
     return ptr, epd;
 }
 
 
-function shoot(player, unitType, speed, sx, sy, dx, dy) {
-    const ptr, epd = createBullet(unitType, player, speed, sx, sy);
-    if(ptr != 0) {
+function orderBullet(player, unitepd, dx, dy) {
+    if(unitepd) {
         // /*0x04D*/ u8            orderID;
         // /*0x04E*/ u8            orderState;
-        SetMemoryEPD(epd + (0x4C / 4), SetTo, player + 0x00000600);
+        SetMemoryEPD(unitepd + (0x4C / 4), SetTo, player + 0x00000600);
 
         // /*0x050*/ u16           orderUnitType;
-        SetMemoryEPD(epd + (0x50 / 4), SetTo, 228);
+        SetMemoryEPD(unitepd + (0x50 / 4), SetTo, 228);
 
         // /*0x058*/ Target    orderTarget;
-        SetMemoryEPD(epd + (0x58 / 4), SetTo, dy * 0x10000 + dx);
-        SetMemoryEPD(epd + (0x5C / 4), SetTo, 0);
+        SetMemoryEPD(unitepd + (0x58 / 4), SetTo, dy * 0x10000 + dx);
+        SetMemoryEPD(unitepd + (0x5C / 4), SetTo, 0);
+    }
+}
+
+function shoot(player, unitType, speed, sx, sy, dx, dy) {
+    const ptr, epd = createBullet(player, unitType, speed, sx, sy);
+    orderBullet(player, epd, dx, dy);
+    return ptr, epd;
+}
+
+
+///////////
+
+function getBulletPos(unitepd) {
+    return dwbreak(dwread_epd(unitepd + (0x28 / 4)))[[0, 1]];
+}
+
+function getBulletVelocity(unitepd) {
+    // 0x040: point         current_speed;
+    return
+        dwread_epd(unitepd + (0x40 / 4) + 0),
+        dwread_epd(unitepd + (0x40 / 4) + 1);
+}
+function killBullet(player, unitepd) {
+    if(unitepd) {
+        SetMemoryEPD(unitepd + (0x4C / 4), SetTo, player);  // Set orderID to 0
     }
 }

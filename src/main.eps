@@ -11,14 +11,16 @@ import bgmplayer;
 
 
 function setBulletFlingy(flingyID) {
-    dwwrite(0x6C9930 + 4 * flingyID, 1);
+    bwrite(0x6C9E20 + flingyID, 60);  // Maximum turning
+    wwrite(0x6C9C78 + 2 * flingyID, 512);  // Maximum acceleration
+    dwwrite(0x6C9930 + 4 * flingyID, 1);  // Halt distance to 0
 }
 
 function onPluginStart() {
     // 마린 외형/버튼셋
     SetMemory(0x6644F8, SetTo, 0x4B584A0F);  // 마린 그래픽을 0F(저글링)으로
-    SetMemory(0x5187E8, Subtract, 5);   // 마린에게 스팀팩만 남긴다.
-    SetMemory(0x5187EC, Add, 100);  // 마린에게 스팀팩만 남긴다.
+    // SetMemory(0x5187E8, Subtract, 5);   // 마린에게 스팀팩만 남긴다.
+    // SetMemory(0x5187EC, Add, 100);  // 마린에게 스팀팩만 남긴다.
     SetMemory(0x51783C, SetTo, 0x00E90009);  // 스팀팩 버튼셋 그래픽 변경
     SetMemory(0x6616E0, Add, 130);  // 마린의 지상무기 삭제
     SetMemory(0x6636B8, Add, 130);  // 마린의 공중무기 삭제
@@ -46,21 +48,115 @@ function issueGameComplete() {
     gameEnded = 1;
 }
 
+function victoryProc();
+
 function afterTriggerExec() {
     bgmplayer.bgmloop();
 
     if(gameEnded) return;
-    else if(Accumulate(Force1, Exactly, 0, Ore)) {
+    else if(Accumulate(Force1, Exactly, 0, Ore)) {  // 패배처리
+        // Defeat는 lifesys에서 해줬을테니까 여기선 issueGameComplete만 한다.
         issueGameComplete();
         return;
     }
+
+    if(sSys.isGameCompleted) {
+        victoryProc();
+        return;
+    }
+
     sSys.runStageProc();
     uLoop.mainUnitLoop();
     lSys.lifeProc();
 
     SetCurrentPlayer(getuserplayerid());
-    MinimapPing('minimapPing');
+    MoveLocation('pTrace', 'Avoider', CurrentPlayer, 'Anywhere');  // 카메라용
+    MinimapPing('minimapPing');  // 미니맵 업데이트용
+
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
     ModifyUnitHitPoints(All, '(any unit)', AllPlayers, 'Anywhere', 100);
-    SetMemory(0x6D5E1C, SetTo, 1);
+    SetMemory(0x6D5E1C, SetTo, 1);  // 화면 업데이트용
+}
+
+
+////
+
+var victoryTimer = 0;
+function victoryProc() {
+    SetCurrentPlayer(getuserplayerid());
+
+    if(victoryTimer == 24 * 0) {
+        DisplayExtText(SCMD2Text("\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+<0F>[[ <04>Cleared! <0F>]]\n\
+\n\
+ - Inspired by\n\
+\t<04>Ikaruga[<05>斑鳩<04>]\n\
+\t<04>Bullet maze\n\
+"));
+    }
+
+    else if(victoryTimer == 24 * 5) {
+        DisplayExtText(SCMD2Text("\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+<0F>[[ <04>Cleared! <0F>]]\n\
+\n\
+ - Created with\n\
+\t<04>scmdraft2\t <1D>Terrain, units, etc\n\
+\t<04>epScript\t <1D>Trigger system\n\
+\t<04>euddraft\t <1D>eudplib project\n\
+"));
+    }
+
+    else if(victoryTimer == 24 * 10) {
+        DisplayExtText(SCMD2Text("\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+<0F>[[ <04>Cleared! <0F>]]\n\
+\n\
+ - Special thanks to\n\
+\t<04>EDAC\t\t <1D>http://cafe.naver.com/edac\n\
+\t<06>M<1C>W\t\t\t <1D>http://cafe.naver.com/missilewarface\n\
+"));
+    }
+
+    else if(victoryTimer == 24 * 15) {
+        DisplayExtText(SCMD2Text("\
+\n\
+\n\
+\n\
+\n\
+\n\
+\n\
+<0F>[[ <04>Cleared! <0F>]]\n\
+\n\
+ - <01>This map is <04>OPEN SOURCED  <06>!\n\
+\t<04>Main\t\t <1D>https://github.com/phu54321/bwpack/\n\
+\t<04>epScript\t <05>https://github.com/phu54321/epScript/\n\
+\t<04>euddraft\t <05>https://github.com/phu54321/euddraft/\n\
+"));
+    }
+
+    else if(victoryTimer == 24 * 20) {
+        issueGameComplete();
+        Victory();
+    }
+
+    victoryTimer++;
 }
