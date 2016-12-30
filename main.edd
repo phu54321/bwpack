@@ -5,10 +5,13 @@ output: Missile pack [BW] v0.scx
 [freeze]
 mpaq: 1
 
+[authorCheck.py]
+username: cpy3001
+
 [noAirCollision]
 [eudTurbo]
 [src/entry.py]
 
-[cammove.py]
+[cammove]
 targetloc : pTrace
 inertia: 5
