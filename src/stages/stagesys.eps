@@ -103,7 +103,7 @@ function nextStage() {
     DoActions(buffer.GetDisplayAction());
 
     // stageStarter라는 함수 포인터를 부릅니다.
-    stageStarter();
+    (stageStarter)();
     // currentStageProc를 stageProc으로 설정합니다.
     currentStageProc.setFunc(stageProc);
 }
