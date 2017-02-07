@@ -9,6 +9,7 @@ function stagestart() {
 
 function stageproc() {
     // Stagle processor
+    // eudplib에서 for timer in tL.Timeline(8 * 16): 이랑 동일합니다.
     foreach(timer : tL.Timeline(8 * 16)) {
         if(timer % 8 == 0) {
             var row;

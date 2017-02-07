@@ -1,3 +1,13 @@
+/*
+여기가 bwpack의 매인 플러그인입니다. main.eps에서는
+ - 미사일/유닛의 외형이나 등등을 변경하는 onPluginStart 함수와
+ - 매 프레임마다 불리는 afterTriggerExec 함수
+ 가 있습니다. 
+
+ afterTriggerExec에서는 현재 게임 상황에 따라 여러 함수들을 부릅니다. 
+ */
+
+
 import player.playerProc as pProc;
 import player.lifesys as lSys;
 
@@ -35,9 +45,6 @@ function onPluginStart() {
     // 스테이지 관련
     SetCurrentPlayer(getuserplayerid());
     DisplayText("\x1F♬\x04 cycerin - Spacefighter\n\n");
-
-    // 조이스틱
-    SetMemory(0x518848, Subtract, 7);  // 조이스틱 버튼셋 삭제
 }
 
 var x = 0;
@@ -48,10 +55,14 @@ function issueGameComplete() {
     gameEnded = 1;
 }
 
+// victoryProc를 밑에서 정의해주니까 여기서는 victoryProc라는게 있다고만 선언해줍니다.
 function victoryProc();
 
+
+// 메인 함수입니다.
 function afterTriggerExec() {
-    bgmplayer.bgmloop();
+    bgmplayer.bgmloop();  // 브금 재생
+
 
     if(gameEnded) return;
     else if(Accumulate(Force1, Exactly, 0, Ore)) {  // 패배처리
@@ -60,21 +71,24 @@ function afterTriggerExec() {
         return;
     }
 
+    // 게임 클리어 처리
     if(sSys.isGameCompleted) {
         victoryProc();
         return;
     }
 
-    sSys.runStageProc();
-    uLoop.mainUnitLoop();
-    lSys.lifeProc();
+    sSys.runStageProc();  // 현재 스테이지에 따른 미사일 발사
+    uLoop.mainUnitLoop();  // 구조오프셋 관련 처리
+    lSys.lifeProc();  // 미사일에 맞는것 등 처리
 
+    // pTrace 관련
     SetCurrentPlayer(getuserplayerid());
-    MoveLocation('pTrace', 'Avoider', CurrentPlayer, 'Anywhere');  // 카메라용
-    MinimapPing('minimapPing');  // 미니맵 업데이트용
+    MoveLocation('pTrace', 'Avoider', CurrentPlayer, 'Anywhere');  // 카메라
 
+    // 기타 처리
     SetInvincibility(Enable, '(any unit)', AllPlayers, 'Anywhere');
     ModifyUnitHitPoints(All, '(any unit)', AllPlayers, 'Anywhere', 100);
+    MinimapPing('minimapPing');  // 미니맵 업데이트
     SetMemory(0x6D5E1C, SetTo, 1);  // 화면 업데이트용
 }
 

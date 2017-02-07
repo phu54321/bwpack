@@ -3,15 +3,18 @@ input: basemap.scx
 output: Missile pack [BW] v0.scx
 
 [freeze]
-mpaq: 1
+mpaq: 1  # mpaq를 적용합니다. wav 크기가 줄어들어요.
 
-[authorCheck.py]
-username: cpy3001
+# 맵을 테스트할때 그 방에 제작자가 있는지 체크합니다.
+# [authorCheck.py]
+# username: cpy3001
 
-[noAirCollision]
-[eudTurbo]
-[src/entry.py]
+[noAirCollision]  # 공중유닛 충돌 방지
+[eudTurbo]  # eud터보
 
-[cammove]
+[cammove]  # 카메라를 pTrace로 움직입니다.
 targetloc : pTrace
 inertia: 5
+
+
+[src/main.eps]  # 메인!

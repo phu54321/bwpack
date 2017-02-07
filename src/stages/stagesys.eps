@@ -9,6 +9,7 @@ import stages.pattern05;
 
 import player.lifesys as lSys;
 
+// array입니당!
 const stagesFuncs = [
     pattern04.funcs,
     pattern05.funcs,
@@ -16,22 +17,58 @@ const stagesFuncs = [
     pattern02_var.funcs,  // Basic tutorial 2
     pattern01.funcs,  // Thing
     pattern03.funcs,
-    0
+    0  // 마지막 스테이지는 0을 넣습니다. (*) 참고
 ];
 
 ////////////////////////////////
 
 var currentStage = 0;
-const currentStageProc = EUDFuncPtr(0, 0)();
+const currentStageProc = EUDFuncPtr(0, 0)();  // 함수 포인터입니다!
 var isGameCompleted = 0;
 
+
+
+/**
+ * 매 스테이지가 끝났을 때 다음 스테이지로 넘어가는 함수입니다.
+ */
 function nextStage() {
     if(isGameCompleted) return;
+    /*
+    이 함수는 이해하기 좀 어려울것같아 부가설명을 덧붙입니다.
+
+    epScript에서 모든 배열은 int의 배열입니다. 그래서 stageFuncs[currentStage]의
+    결과값 역시 int (EUDVariable)입니다. 즉, 예를 들어 currentStage = 0라 하더라도 
+    stageFuncs = int(pattern04.funcs)와 같이 stageFuncs는 int가 됩니다.
+
+    그런데 pattern04.eps를 보시면 이런 식으로 funcs가 사실은 int가 아니라
+    EUDArray인걸 알 수 있습니다.
+
+        const funcs = [
+            DBString("Freeze!"),
+            EUDFuncPtr(0, 0)(f_stagestart),
+            EUDFuncPtr(0, 0)(f_stageproc)
+        ];
+
+    그래서 stageFuncs의 값은 비록 int지만 (실제로는 funcs에 해당하는 EUDArray의
+    주소값), 이 값을 다시 EUDArray로 해석해줘야 funcs의 내용물을 읽을 수 있습니다.
+    이때 쓰는게 형변환입니다.
+
+        const stageFunc2 = EUDArray(stageFuncs);
+
+    이렇게 EUDArray(오프셋값)처럼 형변환을 시켜주면 그 오프셋값을 EUDArray로
+    해석할 수 있게 됩니다.
+
+    이런 식으로 eudplib에서는 모든 자료형을 int(오프셋)으로 서로 전달하고, 그
+    오프셋을 다시 원하는 자료형으로 형변환하는 방식으로 자료구조를 주고 받을 수
+    있습니다.
+     */
+
     const stageFuncs = stagesFuncs[currentStage];
     currentStage++;
     KillUnit('(any unit)', Force2);
     RemoveUnit('Avoider', Force1);
 
+    // (*) 모든 스테이지를 다 돌았으면 클리어 처리를 합니다.
     if(stageFuncs == 0) {
         isGameCompleted = 1;
         lSys.setLife($Force1, 999999999);
@@ -41,7 +78,10 @@ function nextStage() {
     lSys.setLife($Force1, 20);
     lSys.createPlayers();
 
+
+    // 위에서 설명했던 형변환 파트입니다.
     const stageFunc2 = EUDArray(stageFuncs);
+    // stageFunc2[0~2]의 값도 각각 원래 자료형으로 형변환시켜줍니다.
     const stageName, stageStarter, stageProc =
         DBString(stageFunc2[0]),
         EUDFuncPtr(0, 0)(stageFunc2[1]),
@@ -49,21 +89,33 @@ function nextStage() {
 
     SetCurrentPlayer(getuserplayerid());
 
-    const buffer = DBString(50);
+    // 스트링 조합 부분입니다.
+    const buffer = DBString(1024);  // 스트링을 조합할 공간입니다.
+
+    // buffer "\x0F#(스테이지 번호). \x04" 라고 씁니다. k1는 buffer에다 저렇게
+    // 쓴 뒤에 buffer 문자열의 끝을 가르킵니다.
     const k1 = dbstr_print(buffer, "\x0F#", currentStage, ". \x04");
+    // k1(buffer의 끝)에다가 stageName을 넣으면 buffer 문자열 끝에 stageName을
+    // 덧붙이는 효과가 되겠죠
     dbstr_addstr(k1, stageName.GetStringMemoryAddr());
+
+    // buffer를 화면에 띄웁니다.
     DoActions(buffer.GetDisplayAction());
-    EUDFuncPtr(0, 0)(stageStarter)();
+
+    // stageStarter라는 함수 포인터를 부릅니다.
+    stageStarter();
+    // currentStageProc를 stageProc으로 설정합니다.
     currentStageProc.setFunc(stageProc);
 }
 
 function gameCompleteProc();
 
 function runStageProc() {
-    // Staging
+    // 초기화/스테이지 클리어 처리
     if(currentStage == 0 || Bring(Force1, AtLeast, 1, 'Avoider', 'stageEnd')) {
         nextStage();
     }
+
     if(isGameCompleted) {
         gameCompleteProc();
         return;
@@ -71,6 +123,8 @@ function runStageProc() {
     (currentStageProc)();
 }
 
+/**
+ * 게임이 끝났을때 불릴 함수. 아직 딱히 역할은 없습니다.
+ */
 function gameCompleteProc() {
-
 }

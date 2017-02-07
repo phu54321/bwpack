@@ -1,3 +1,5 @@
+// 로케이션 위치정보를 모아둔 파일입니다.
+
 function playerRegen(player) {
     return 864 + player * 64, 1376;
 }
@@ -9,6 +11,10 @@ function moveLocationPx(locID, x, y) {
     SetMemory(0x58DC60 + 20 * locID + 0x0C, SetTo, y);
 }
 
+/**
+ * 로케이션의 위(top), 왼쪽 (left) 좌표를 얻어냅니다.
+ * @param  {[type]} locID 로케이션 번호. $L(로케이션 이름) 으로 얻을 수 있습니다.
+ */
 function getLocationTL(locID) {
     return
         dwread_epd(EPD(0x58DC60) + 5 * locID + 0),

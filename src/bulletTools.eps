@@ -52,6 +52,9 @@ function placeTiled(player, unitType, tx, ty) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+/**
+ * (x, y)에서 (dx, dy) 방향으로 뻣어나가는 반직선과 맵 테두리의 교점을 구합니다.
+ */
 function getInfiniteVectorEnd(x, y, dx, dy) {
     const mapSize = 32 * 64;
 
@@ -75,9 +78,13 @@ function getInfiniteVectorEnd(x, y, dx, dy) {
     else dstx = x + (dx * time / 2048);
     if(dy >= 0x80000000) dsty = y - (-dy * time / 2048);
     else dsty = y + (dy * time / 2048);
-    return dstx, dsty;
+    return dstx, dsty;  // 여러개 값 반환도 되요!
 }
 
+
+/**
+ * 특정 방향으로 미사일을 움직이게 합니다.
+ */
 function orderAngle(player, unitepd, angle) {
     if(unitepd) {
         const srcx, srcy = dwbreak(dwread_epd(unitepd + (0x28 / 4)))[[0, 1]];
@@ -87,12 +94,18 @@ function orderAngle(player, unitepd, angle) {
     }
 }
 
+/**
+ * 미사일 만들고 방향으로 날립니다.
+ */
 function shootAngle(player, unitType, speed, srcx, srcy, angle) {
     const dx, dy = lengthdir(1024, angle);
     const dstx, dsty = getInfiniteVectorEnd(srcx, srcy, dx, dy);
     return bBase.shoot(player, unitType, speed, srcx, srcy, dstx, dsty);
 }
 
+/**
+ * 타일로 초기위치를 지정하는 shootAngle
+ */
 function shootAngleTiled(player, unitType, speed, tx, ty, angle) {
     const srcx, srcy = getTilesPosition(tx, ty);
     return shootAngle(player, unitType, speed, srcx, srcy, angle);
