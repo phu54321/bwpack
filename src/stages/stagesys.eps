@@ -53,9 +53,9 @@ function nextStage() {
     주소값), 이 값을 다시 EUDArray로 해석해줘야 funcs의 내용물을 읽을 수 있습니다.
     이때 쓰는게 형변환입니다.
 
-        const stageFunc2 = EUDArray(stageFuncs);
+        const stageFunc2 = EUDArray.cast(stageFuncs);
 
-    이렇게 EUDArray(오프셋값)처럼 형변환을 시켜주면 그 오프셋값을 EUDArray로
+    이렇게 EUDArray.cast(오프셋값)처럼 형변환을 시켜주면 그 오프셋값을 EUDArray로
     해석할 수 있게 됩니다.
 
     이런 식으로 eudplib에서는 모든 자료형을 int(오프셋)으로 서로 전달하고, 그
@@ -80,10 +80,10 @@ function nextStage() {
 
 
     // 위에서 설명했던 형변환 파트입니다.
-    const stageFunc2 = EUDArray(stageFuncs);
+    const stageFunc2 = EUDArray.cast(stageFuncs);
     // stageFunc2[0~2]의 값도 각각 원래 자료형으로 형변환시켜줍니다.
     const stageName, stageStarter, stageProc =
-        DBString(stageFunc2[0]),
+        DBString.cast(stageFunc2[0]),
         EUDFuncPtr(0, 0)(stageFunc2[1]),
         EUDFuncPtr(0, 0)(stageFunc2[2]);
 
@@ -100,7 +100,7 @@ function nextStage() {
     dbstr_addstr(k1, stageName.GetStringMemoryAddr());
 
     // buffer를 화면에 띄웁니다.
-    DoActions(buffer.GetDisplayAction());
+    buffer.Display();
 
     // stageStarter라는 함수 포인터를 부릅니다.
     (stageStarter)();
