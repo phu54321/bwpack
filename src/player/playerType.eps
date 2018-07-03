@@ -44,6 +44,6 @@ function applyUnitTypeColor(player, epd) {
     const spritePtr = dwread_epd(epd + (0x0C / 4));
     if(!spritePtr) return;
     if(getCurrentUnitType(epd) == 1) bwrite(spritePtr + 0x0A, player);
-    else bwrite(spritePtr + 0x0A, 138);
+    else bwrite(spritePtr + 0x0A, 10);
 }
 
