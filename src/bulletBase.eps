@@ -31,9 +31,11 @@ function createBullet(player, unitType, speed, x, y) {
         else {
             makeUnitStackable(epd);
             SetMemoryEPD(epd + (0x34 / 4), SetTo, speed);
+            /* TODO: SC:R does not support CImage
             const image_epd = epdread_epd(sprite_epd + (0x18 / 4));
             const initialFlag = dwread_epd(image_epd + (0x0C / 4));
             dwwrite_epd(image_epd + (0x0C / 4), initialFlag & ~0x0020);
+            */
         }
     }
     return ptr, epd;
