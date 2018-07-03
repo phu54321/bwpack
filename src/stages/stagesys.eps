@@ -84,8 +84,8 @@ function nextStage() {
     // stageFunc2[0~2]의 값도 각각 원래 자료형으로 형변환시켜줍니다.
     const stageName, stageStarter, stageProc =
         DBString.cast(stageFunc2[0]),
-        EUDFuncPtr(0, 0)(stageFunc2[1]),
-        EUDFuncPtr(0, 0)(stageFunc2[2]);
+        EUDFuncPtr(0, 0).cast(stageFunc2[1]),
+        EUDFuncPtr(0, 0).cast(stageFunc2[2]);
 
     SetCurrentPlayer(getuserplayerid());
 
