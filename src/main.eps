@@ -34,7 +34,8 @@ function onPluginStart() {
     SetMemory(0x51783C, SetTo, 0x00E90009);  // 스팀팩 버튼셋 그래픽 변경
     SetMemory(0x6616E0, Add, 130);  // 마린의 지상무기 삭제
     SetMemory(0x6636B8, Add, 130);  // 마린의 공중무기 삭제
-    bwrite(0x581D76 + 8 * $P11, 138);  // P11의 색상 변경
+    SetMemory(0x581D76 + 8 * $P11, SetTo, 514);  // P11의 색상을 138로 변경
+    SetMemory(0x581D76 + 8 * $P11 + 4, SetTo, 0);
 
     setBulletFlingy(43);  // 스카웃 속도 조절
 
